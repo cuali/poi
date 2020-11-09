@@ -30,6 +30,7 @@ import java.io.InputStream;
 
 import org.apache.poi.POIDataSamples;
 import org.apache.poi.sl.draw.DrawTextParagraph;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.junit.Test;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextLineBreak;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextParagraph;
@@ -133,9 +134,9 @@ public class TestXSLFTextRun {
                 if (shape instanceof  XSLFTextShape) {
                     XSLFTextShape text = (XSLFTextShape) shape;
                     XSLFTextParagraph paragraph = text.getTextParagraphs().get(0);
-                    XSLFTextRun defaultRun = paragraph.getTextRuns().get(0);
+                    XDDFTextRun defaultRun = paragraph.getTextRuns().get(0);
                     assertEquals("DefaultRunProperties", defaultRun.getRawText().trim());
-                    XSLFTextRun explicitRun = paragraph.getTextRuns().get(1);
+                    XDDFTextRun explicitRun = paragraph.getTextRuns().get(1);
                     assertEquals("ExplicitRunProperties", explicitRun.getRawText().trim());
                     assertEquals(defaultRun.getFontSize(), explicitRun.getFontSize());
                     assertNotEquals(defaultRun.getFontColor(), explicitRun.getFontColor());

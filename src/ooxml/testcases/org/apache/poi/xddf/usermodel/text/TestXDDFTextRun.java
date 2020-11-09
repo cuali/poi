@@ -32,8 +32,6 @@ import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
-import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
-import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
@@ -113,9 +111,9 @@ public class TestXDDFTextRun {
             assertFalse(run.isStrikeThrough());
 
             assertFalse(run.isCapitals());
-            run.setCapitals(CapsType.SMALL);
+            run.setCapitals(CapitalsType.SMALL);
             assertTrue(run.isCapitals());
-            run.setCapitals(CapsType.NONE);
+            run.setCapitals(CapitalsType.NONE);
             assertFalse(run.isCapitals());
 
             assertFalse(run.isBold());

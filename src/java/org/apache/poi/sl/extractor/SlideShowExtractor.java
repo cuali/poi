@@ -365,7 +365,7 @@ public class SlideShowExtractor<
         txt = txt.replace('\r', '\n');
         txt = txt.replace((char) 0x0B, sep);
 
-        switch (tr.getTextCap()) {
+        switch (tr.getTextCapitals()) {
             case ALL:
                 txt = txt.toUpperCase(LocaleUtil.getUserLocale());
                 break;

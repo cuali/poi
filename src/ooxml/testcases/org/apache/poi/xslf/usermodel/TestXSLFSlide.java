@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.XSLFTestDataSamples;
 import org.junit.Test;
 
@@ -134,7 +135,7 @@ public class TestXSLFSlide {
 
         XSLFTextShape sh1 = (XSLFTextShape)shapes1.get(0);
         assertEquals("Austin Theme", sh1.getText());
-        XSLFTextRun r1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Century Gothic", r1.getFontFamily());
         assertEquals(40.0, r1.getFontSize(), 0);
         assertTrue(r1.isBold());
@@ -147,7 +148,7 @@ public class TestXSLFSlide {
         assertEquals(
                 "Text in a autoshape is white\n" +
                 "Fill: RGB(148, 198,0)", sh2.getText());
-        XSLFTextRun r2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Century Gothic", r2.getFontFamily());
         assertEquals(18.0, r2.getFontSize(), 0);
         assertFalse(r2.isBold());
@@ -163,7 +164,7 @@ public class TestXSLFSlide {
 
         XSLFTextShape sh3 = (XSLFTextShape)shapes2.get(0);
         assertEquals("This slide overrides master background with a texture fill", sh3.getText());
-        XSLFTextRun r3 = sh3.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r3 = sh3.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Century Gothic", r3.getFontFamily());
         //assertEquals(32.4.0, r3.getFontSize());
         assertTrue(r3.isBold());

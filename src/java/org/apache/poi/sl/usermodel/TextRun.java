@@ -32,12 +32,21 @@ public interface TextRun {
     /**
      * Type of text capitals
      */
-    enum TextCap {
+    enum TextCapitals {
         NONE,
         SMALL,
         ALL
     }
     
+    /**
+     * Type of text strike through
+     */
+    enum StrikeThrough {
+        NONE,
+        SINGLE,
+        DOUBLE
+    }
+
     /**
      * Type of placeholder fields
      */
@@ -48,7 +57,7 @@ public interface TextRun {
     String getRawText();
     void setText(String text);
 
-    TextCap getTextCap();
+    TextCapitals getTextCapitals();
 
     /**
      * Returns the font color.
@@ -186,21 +195,21 @@ public interface TextRun {
     /**
      * Sets the underlined state
      *
-     * @param underlined set to true for underlined text, false for no underlining
+     * @param underlined set to true for single underlined text, false for no underlining
      */
     void setUnderlined(boolean underlined);
 
     /**
      * @return true, if text is stroked
      */
-    boolean isStrikethrough();
+    boolean isStrikeThrough();
 
     /**
      * Sets the strikethrough state
      *
-     * @param stroked set to true for stroked text, false for no stroking
+     * @param stroked set to true for single stroked text, false for no stroking
      */
-    void setStrikethrough(boolean stroked);
+    void setStrikeThrough(boolean stroked);
 
     /**
      * @return true, if text is sub scripted

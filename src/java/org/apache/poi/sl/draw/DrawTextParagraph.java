@@ -414,7 +414,7 @@ public class DrawTextParagraph implements Drawable {
         txtSpace = txtSpace.replace('\u000b', '\n');
         final Locale loc = LocaleUtil.getUserLocale();
 
-        switch (tr.getTextCap()) {
+        switch (tr.getTextCapitals()) {
             case ALL:
                 return txtSpace.toUpperCase(loc);
             case SMALL:
@@ -623,7 +623,7 @@ public class DrawTextParagraph implements Drawable {
                 att.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
                 att.put(TextAttribute.INPUT_METHOD_UNDERLINE, TextAttribute.UNDERLINE_LOW_TWO_PIXEL);
             }
-            if(run.isStrikethrough()) {
+            if(run.isStrikeThrough()) {
                 att.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
             }
             if(run.isSubscript()) {

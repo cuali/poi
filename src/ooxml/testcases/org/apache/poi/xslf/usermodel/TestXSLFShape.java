@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.XSLFTestDataSamples;
 import org.junit.Test;
 import org.openxmlformats.schemas.drawingml.x2006.main.STTextUnderlineType;
@@ -45,7 +46,7 @@ public class TestXSLFShape {
         XSLFTextParagraph p0 = paragraphs0.get(0);
         assertEquals("Learning PPTX", p0.getText());
         assertEquals(1, p0.getTextRuns().size());
-        XSLFTextRun r0 = p0.getTextRuns().get(0);
+        XDDFTextRun r0 = p0.getTextRuns().get(0);
         assertEquals("Learning PPTX", r0.getRawText());
 
         XSLFSlide slide2 = slides.get(1);
@@ -57,7 +58,7 @@ public class TestXSLFShape {
         assertEquals(1, paragraphs1.size());
         XSLFTextParagraph p1 = paragraphs1.get(0);
         assertEquals("PPTX Title", p1.getText());
-        List<XSLFTextRun> r2 = paragraphs1.get(0).getTextRuns();
+        List<XDDFTextRun> r2 = paragraphs1.get(0).getTextRuns();
         assertEquals(2, r2.size());
         assertEquals("PPTX ", r2.get(0).getRawText());
         assertEquals("Title", r2.get(1).getRawText());

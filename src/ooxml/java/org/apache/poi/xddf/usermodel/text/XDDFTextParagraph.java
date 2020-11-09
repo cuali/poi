@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.apache.commons.collections4.iterators.ReverseListIterator;
+import org.apache.poi.sl.usermodel.TextRun;
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.LocaleUtil;
@@ -48,10 +49,10 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTTextSpacing;
  */
 @Beta
 public class XDDFTextParagraph {
-    private XDDFTextBody _parent;
+    protected final XDDFTextBody _parent;
     private XDDFParagraphProperties _properties;
-    private final CTTextParagraph _p;
-    private final ArrayList<XDDFTextRun> _runs;
+    protected final CTTextParagraph _p;
+    protected final ArrayList<XDDFTextRun> _runs;
 
     @Internal
     protected XDDFTextParagraph(CTTextParagraph paragraph, XDDFTextBody parent) {
@@ -110,11 +111,11 @@ public class XDDFTextParagraph {
         return _parent;
     }
 
-    public List<XDDFTextRun> getTextRuns() {
-        return _runs;
+    public List<? extends XDDFTextRun> getTextRuns() {
+        return Collections.unmodifiableList(_runs);
     }
 
-    public Iterator<XDDFTextRun> iterator() {
+    public Iterator<? extends XDDFTextRun> iterator() {
         return _runs.iterator();
     }
 
@@ -695,21 +696,21 @@ public class XDDFTextParagraph {
         }
     }
 
-    public XDDFTabStop addTabStop() {
+    public XDDFTabStop addStop() {
         return getOrCreateProperties().addTabStop();
     }
 
-    public XDDFTabStop insertTabStop(int index) {
+    public XDDFTabStop insertStop(int index) {
         return getOrCreateProperties().insertTabStop(index);
     }
 
-    public void removeTabStop(int index) {
+    public void removeStop(int index) {
         if (_p.isSetPPr()) {
             getProperties().removeTabStop(index);
         }
     }
 
-    public XDDFTabStop getTabStop(int index) {
+    public XDDFTabStop getStop(int index) {
         if (_p.isSetPPr()) {
             return getProperties().getTabStop(index);
         } else {
@@ -717,7 +718,7 @@ public class XDDFTextParagraph {
         }
     }
 
-    public List<XDDFTabStop> getTabStops() {
+    public List<XDDFTabStop> getStops() {
         if (_p.isSetPPr()) {
             return getProperties().getTabStops();
         } else {
@@ -725,7 +726,7 @@ public class XDDFTextParagraph {
         }
     }
 
-    public int countTabStops() {
+    public int countStops() {
         if (_p.isSetPPr()) {
             return getProperties().countTabStops();
         } else {

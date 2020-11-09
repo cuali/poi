@@ -39,6 +39,7 @@ import org.apache.poi.util.Beta;
 import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.text.TextContainer;
 import org.apache.poi.xddf.usermodel.text.XDDFTextBody;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.model.PropertyFetcher;
 import org.apache.poi.xslf.model.TextBodyPropertyFetcher;
 import org.apache.xmlbeans.XmlObject;

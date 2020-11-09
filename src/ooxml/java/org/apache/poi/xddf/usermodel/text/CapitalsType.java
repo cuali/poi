@@ -21,25 +21,25 @@ import java.util.HashMap;
 
 import org.openxmlformats.schemas.drawingml.x2006.main.STTextCapsType;
 
-public enum CapsType {
+public enum CapitalsType {
     ALL(STTextCapsType.ALL),
     NONE(STTextCapsType.NONE),
     SMALL(STTextCapsType.SMALL);
 
     final STTextCapsType.Enum underlying;
 
-    CapsType(STTextCapsType.Enum caps) {
+    CapitalsType(STTextCapsType.Enum caps) {
         this.underlying = caps;
     }
 
-    private final static HashMap<STTextCapsType.Enum, CapsType> reverse = new HashMap<>();
+    private final static HashMap<STTextCapsType.Enum, CapitalsType> reverse = new HashMap<>();
     static {
-        for (CapsType value : values()) {
+        for (CapitalsType value : values()) {
             reverse.put(value.underlying, value);
         }
     }
 
-    static CapsType valueOf(STTextCapsType.Enum caps) {
+    static CapitalsType valueOf(STTextCapsType.Enum caps) {
         return reverse.get(caps);
     }
 }
