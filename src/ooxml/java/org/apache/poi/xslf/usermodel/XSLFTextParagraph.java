@@ -34,7 +34,6 @@ import org.apache.poi.sl.usermodel.TextParagraph;
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.Units;
-import org.apache.poi.xddf.usermodel.text.XDDFTabStop;
 import org.apache.poi.xddf.usermodel.text.XDDFTextParagraph;
 import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.model.ParagraphPropertyFetcher;
@@ -209,7 +208,7 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
      * @return the font to be used on bullet characters within a given paragraph
      */
     @SuppressWarnings("WeakerAccess")
-    public String getBulletFont(){
+    public String getBulletFontName(){
         return fetchParagraphProperty((props, val) -> {
             if (props.isSetBuFont()) {
                 val.accept(props.getBuFont().getTypeface());
@@ -218,7 +217,7 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
     }
 
     @SuppressWarnings("WeakerAccess")
-    public void setBulletFont(String typeface){
+    public void setBulletFontName(String typeface){
         CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
         CTTextFont font = pr.isSetBuFont() ? pr.getBuFont() : pr.addNewBuFont();
         font.setTypeface(typeface);
@@ -323,7 +322,6 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
      * If bulletSize &lt; 0, then it specifies the size in points
      * </p>
      */
-    @SuppressWarnings("WeakerAccess")
     public void setBulletFontSize(double bulletSize){
         CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
 
@@ -345,7 +343,6 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
     /**
      * @return the auto numbering scheme, or null if not defined
      */
-    @SuppressWarnings("WeakerAccess")
     public AutoNumberingScheme getAutoNumberingScheme() {
         return fetchParagraphProperty(XSLFTextParagraph::fetchAutoNumberingScheme);
     }
@@ -462,8 +459,7 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
         });
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public double getStop(final int idx) {
+    public double getStopPoints(final int idx) {
         Double d = fetchParagraphProperty((props,val) -> fetchTabStop(idx,props,val));
         return (d == null) ? 0. : d;
     }
@@ -478,32 +474,10 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
         }
     }
 
-
-    @SuppressWarnings("WeakerAccess")
     public void addTabStop(double value){
         CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
         CTTextTabStopList tabStops = pr.isSetTabLst() ? pr.getTabLst() : pr.addNewTabLst();
         tabStops.addNewTab().setPos(Units.toEMU(value));
-    }
-
-    @Override
-    public void setLineSpacing(Double lineSpacing){
-        setSpacing(lineSpacing, props -> props::getLnSpc, props -> props::addNewLnSpc, props -> props::unsetLnSpc);
-    }
-
-    @Override
-    public Double getLineSpacing(){
-        final Double lnSpc = getSpacing(props -> props::getLnSpc);
-        if (lnSpc != null && lnSpc > 0) {
-            // check if the percentage value is scaled
-            final CTTextNormalAutofit normAutofit = getParentShape().getTextBodyPr().getNormAutofit();
-            if (normAutofit != null) {
-                final double scale = 1 - (double)normAutofit.getLnSpcReduction() / 100000;
-                return lnSpc * scale;
-            }
-        }
-
-        return lnSpc;
     }
 
     @Override
@@ -839,9 +813,9 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
             setSpaceBefore(spaceBefore);
         }
 
-        Double lineSpacing = other.getLineSpacing();
-        if (doubleNotEquals(lineSpacing, getLineSpacing())) {
-            setLineSpacing(lineSpacing);
+        Double lineSpacing = other.getLineSpacingValue();
+        if (doubleNotEquals(lineSpacing, getLineSpacingValue())) {
+            setLineSpacingValue(lineSpacing);
         }
     }
 

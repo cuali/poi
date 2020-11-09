@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.xddf.usermodel.text.TextAlignment;
 import org.junit.Test;
 
 public class TestXSSFTextParagraph {
@@ -58,6 +59,8 @@ public class TestXSSFTextParagraph {
             assertEquals(2, text.getTextRuns().size());
             text.addNewTextRun();
             assertEquals(3, text.getTextRuns().size());
+            text.addRegularRun("");
+            assertEquals(4, text.getTextRuns().size());
 
             assertEquals(TextAlign.LEFT, text.getTextAlign());
             text.setTextAlign(null);
@@ -68,6 +71,16 @@ public class TestXSSFTextParagraph {
             assertEquals(TextAlign.RIGHT, text.getTextAlign());
             text.setTextAlign(null);
             assertEquals(TextAlign.LEFT, text.getTextAlign());
+
+            assertEquals(TextAlignment.LEFT, text.getTextAlignment());
+            text.setTextAlignment(null);
+            assertEquals(TextAlignment.LEFT, text.getTextAlignment());
+            text.setTextAlignment(TextAlignment.CENTER);
+            assertEquals(TextAlignment.CENTER, text.getTextAlignment());
+            text.setTextAlignment(TextAlignment.RIGHT);
+            assertEquals(TextAlignment.RIGHT, text.getTextAlignment());
+            text.setTextAlignment(null);
+            assertEquals(TextAlignment.LEFT, text.getTextAlignment());
 
             text.setTextFontAlign(TextFontAlign.BASELINE);
             assertEquals(TextFontAlign.BASELINE, text.getTextFontAlign());
@@ -134,11 +147,11 @@ public class TestXSSFTextParagraph {
             text.addTabStop(3.14);
             assertEquals(3.14, text.getTabStop(0), 0.01);
 
-            assertEquals(100.0, text.getLineSpacing(), 0.01);
+            assertEquals(100.0, text.getLineSpacingValue(), 0.01);
             text.setLineSpacing(3.15);
-            assertEquals(3.15, text.getLineSpacing(), 0.01);
+            assertEquals(3.15, text.getLineSpacingValue(), 0.01);
             text.setLineSpacing(-2.13);
-            assertEquals(-2.13, text.getLineSpacing(), 0.01);
+            assertEquals(-2.13, text.getLineSpacingValue(), 0.01);
 
             assertEquals(0.0, text.getSpaceBefore(), 0.01);
             text.setSpaceBefore(3.17);

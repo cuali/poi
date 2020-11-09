@@ -724,12 +724,12 @@ public final class HSLFTextParagraph implements TextParagraph<HSLFShape,HSLFText
     }
 
     @Override
-    public void setLineSpacing(Double lineSpacing) {
+    public void setLineSpacingValue(Double lineSpacing) {
         setPctOrPoints("linespacing", lineSpacing);
     }
 
     @Override
-    public Double getLineSpacing() {
+    public Double getLineSpacingValue() {
         return getPctOrPoints("linespacing");
     }
 

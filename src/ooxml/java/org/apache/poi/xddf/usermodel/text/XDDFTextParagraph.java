@@ -433,6 +433,63 @@ public class XDDFTextParagraph {
     }
 
     /**
+     * This element specifies the vertical line spacing that is to be used within a paragraph.
+     * This may be specified in two different ways, percentage spacing and font point spacing:
+     * <p>
+     * If linespacing &gt;= 0, then linespacing is a percentage of normal line height
+     * If linespacing &lt; 0, the absolute value of linespacing is the spacing in points
+     * </p>
+     * Examples:
+     * <pre><code>
+     *      // spacing will be 120% of the size of the largest text on each line
+     *      paragraph.setLineSpacing(120);
+     *
+     *      // spacing will be 200% of the size of the largest text on each line
+     *      paragraph.setLineSpacing(200);
+     *
+     *      // spacing will be 48 points
+     *      paragraph.setLineSpacing(-48.0);
+     * </code></pre>
+     *
+     * @param linespacing the vertical line spacing or null, to unset.
+     */
+    public void setLineSpacingValue(Double linespacing){
+        if (linespacing == null) setLineSpacing(null);
+        else if (linespacing >= 0)
+            setLineSpacing(new XDDFSpacingPercent(linespacing));
+        else
+            setLineSpacing(new XDDFSpacingPoints(-linespacing));
+    }
+
+    /**
+     * Returns the vertical line spacing that is to be used within a paragraph.
+     * This may be specified in two different ways, percentage spacing and font point spacing:
+     * <p>
+     * If linespacing &gt;= 0, then linespacing is a percentage of normal line height.
+     * If linespacing &lt; 0, the absolute value of linespacing is the spacing in points
+     * </p>
+     *
+     * @return the vertical line spacing or null, if unset.
+     */
+    public Double getLineSpacingValue(){
+        XDDFSpacing spacing = getLineSpacing();
+        double lnSpc = 100.0;
+        if (spacing != null) {
+            switch (spacing.getType()) {
+                case PERCENT:
+                    lnSpc = ((XDDFSpacingPercent) spacing).getPercent();
+                    double lnSpcRed = _parent.getBodyProperties().getAutoFit().getLineSpaceReduction();
+                    lnSpc *= 1 - (lnSpcRed / 100_000);
+                    break;
+                case POINTS:
+                    lnSpc = - ((XDDFSpacingPoints) spacing).getPoints();
+                    break;
+            }
+        }
+        return lnSpc;
+    }
+
+    /**
      * The amount of vertical white space before the paragraph. This may be
      * specified in two different ways, percentage spacing or font points
      * spacing:
