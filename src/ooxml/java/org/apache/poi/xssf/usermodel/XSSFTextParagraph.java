@@ -26,6 +26,7 @@ import org.apache.poi.ooxml.util.POIXMLUnits;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.Removal;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.TextAlignment;
 import org.apache.poi.xddf.usermodel.text.TextContainer;
 import org.apache.poi.xddf.usermodel.text.XDDFSpacing;
 import org.apache.poi.xddf.usermodel.text.XDDFSpacingPercent;
@@ -33,11 +34,9 @@ import org.apache.poi.xddf.usermodel.text.XDDFSpacingPoints;
 import org.apache.poi.xddf.usermodel.text.XDDFTextBody;
 import org.apache.poi.xddf.usermodel.text.XDDFTextParagraph;
 import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
-import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xssf.model.ParagraphPropertyFetcher;
 import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.*;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTShape;
 
 /**
  * Represents a paragraph of text within the containing text body.
@@ -116,20 +115,12 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
      *
      * If this attribute is omitted, then a value of left is implied.
      * @return alignment that is applied to the paragraph
+     * @deprecated prefer {@link #getTextAlignment()}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public TextAlign getTextAlign(){
-        ParagraphPropertyFetcher<TextAlign> fetcher = new ParagraphPropertyFetcher<TextAlign>(getLevel()){
-            public boolean fetch(CTTextParagraphProperties props){
-                if(props.isSetAlgn()){
-                    TextAlign val = TextAlign.values()[props.getAlgn().intValue() - 1];
-                    setValue(val);
-                    return true;
-                }
-                return false;
-            }
-        };
-        fetchParagraphProperty(fetcher);
-        return fetcher.getValue() == null ? TextAlign.LEFT : fetcher.getValue();
+        return TextAlign.legacy(getTextAlignment());
     }
 
     /**
@@ -138,14 +129,12 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
      * see {@link org.apache.poi.xssf.usermodel.TextAlign}.
      *
      * @param align text align
+     * @deprecated prefer {@link #setTextAlignment(TextAlignment)}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setTextAlign(TextAlign align){
-        CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
-        if(align == null) {
-            if(pr.isSetAlgn()) pr.unsetAlgn();
-        } else {
-            pr.setAlgn(STTextAlignType.Enum.forInt(align.ordinal() + 1));
-        }
+        setTextAlignment(TextAlign.modernize(align));
     }
 
     /**
@@ -190,7 +179,7 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
     /**
      * @return the font to be used on bullet characters within a given paragraph
      */
-    public String getBulletFont(){
+    public String getBulletFontName(){
         ParagraphPropertyFetcher<String> fetcher = new ParagraphPropertyFetcher<String>(getLevel()){
             public boolean fetch(CTTextParagraphProperties props){
                 if(props.isSetBuFont()){
@@ -431,25 +420,6 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
         return fetcher.getValue() == null ? 0 : fetcher.getValue();
     }
 
-    /**
-     *
-     * @return the default size for a tab character within this paragraph in points
-     */
-    public double getDefaultTabSize(){
-        ParagraphPropertyFetcher<Double> fetcher = new ParagraphPropertyFetcher<Double>(getLevel()){
-            public boolean fetch(CTTextParagraphProperties props){
-                if(props.isSetDefTabSz()){
-                    double val = Units.toPoints(POIXMLUnits.parseLength(props.xgetDefTabSz()));
-                    setValue(val);
-                    return true;
-                }
-                return false;
-            }
-        };
-        fetchParagraphProperty(fetcher);
-        return fetcher.getValue() == null ? 0 : fetcher.getValue();
-    }
-
     public double getTabStop(final int idx){
         ParagraphPropertyFetcher<Double> fetcher = new ParagraphPropertyFetcher<Double>(getLevel()){
             public boolean fetch(CTTextParagraphProperties props){
@@ -478,62 +448,6 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
         CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
         CTTextTabStopList tabStops = pr.isSetTabLst() ? pr.getTabLst() : pr.addNewTabLst();
         tabStops.addNewTab().setPos(Units.toEMU(value));
-    }
-
-    /**
-     * This element specifies the vertical line spacing that is to be used within a paragraph.
-     * This may be specified in two different ways, percentage spacing and font point spacing:
-     * <p>
-     * If linespacing &gt;= 0, then linespacing is a percentage of normal line height
-     * If linespacing &lt; 0, the absolute value of linespacing is the spacing in points
-     * </p>
-     * Examples:
-     * <pre><code>
-     *      // spacing will be 120% of the size of the largest text on each line
-     *      paragraph.setLineSpacing(120);
-     *
-     *      // spacing will be 200% of the size of the largest text on each line
-     *      paragraph.setLineSpacing(200);
-     *
-     *      // spacing will be 48 points
-     *      paragraph.setLineSpacing(-48.0);
-     * </code></pre>
-     *
-     * @param linespacing the vertical line spacing
-     */
-    public void setLineSpacing(double linespacing){
-        if(linespacing >= 0)
-            super.setLineSpacing(new XDDFSpacingPercent(linespacing));
-        else
-            super.setLineSpacing(new XDDFSpacingPoints(-linespacing));
-    }
-
-    /**
-     * Returns the vertical line spacing that is to be used within a paragraph.
-     * This may be specified in two different ways, percentage spacing and font point spacing:
-     * <p>
-     * If linespacing &gt;= 0, then linespacing is a percentage of normal line height.
-     * If linespacing &lt; 0, the absolute value of linespacing is the spacing in points
-     * </p>
-     *
-     * @return the vertical line spacing.
-     */
-    public double getLineSpacingValue(){
-        XDDFSpacing spacing = super.getLineSpacing();
-        double lnSpc = 100.0;
-        if (spacing != null) {
-            switch (spacing.getType()) {
-                case PERCENT:
-                    lnSpc = ((XDDFSpacingPercent) spacing).getPercent();
-                    double lnSpcRed = _parent.getBodyProperties().getAutoFit().getLineSpaceReduction();
-                    lnSpc *= 1 - (lnSpcRed / 100_000);
-                break;
-                case POINTS:
-                    lnSpc = - ((XDDFSpacingPoints) spacing).getPoints();
-                break;
-            }
-        }
-        return lnSpc;
     }
 
     /**

@@ -18,6 +18,8 @@
  */
 package org.apache.poi.xssf.usermodel;
 
+import org.apache.poi.xddf.usermodel.text.TextAlignment;
+
 /**
  * Specified a list of text alignment types
  */
@@ -45,4 +47,31 @@ public enum TextAlign {
     JUSTIFY_LOW,
     DIST,
     THAI_DIST
+    ;
+
+    static TextAlign legacy(TextAlignment alignment) {
+        if (alignment == null) return null;
+        switch (alignment) {
+            case CENTER: return TextAlign.CENTER;
+            case DISTRIBUTED: return TextAlign.DIST;
+            case JUSTIFIED: return TextAlign.JUSTIFY;
+            case JUSTIFIED_LOW: return TextAlign.JUSTIFY_LOW;
+            case RIGHT: return TextAlign.RIGHT;
+            case THAI_DISTRIBUTED:return TextAlign.THAI_DIST;
+            default: return TextAlign.LEFT;
+        }
+    }
+
+    static TextAlignment modernize(TextAlign align) {
+        if (align == null) return null;
+        switch (align) {
+            case CENTER: return TextAlignment.CENTER;
+            case DIST: return TextAlignment.DISTRIBUTED;
+            case JUSTIFY: return TextAlignment.JUSTIFIED;
+            case JUSTIFY_LOW: return TextAlignment.JUSTIFIED_LOW;
+            case RIGHT: return TextAlignment.RIGHT;
+            case THAI_DIST:return TextAlignment.THAI_DISTRIBUTED;
+            default: return TextAlignment.LEFT;
+        }
+    }
 }

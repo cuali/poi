@@ -275,10 +275,10 @@ public interface TextParagraph<
      * If linespacing < 0, the absolute value of linespacing is the spacing in points
      * </p>
      *
-     * @return the vertical line spacing or null, if unset
+     * @return the vertical line spacing or null, if unset.
      */
-    Double getLineSpacing();
-    
+    Double getLineSpacingValue();
+
     /**
      * This element specifies the vertical line spacing that is to be used within a paragraph.
      * This may be specified in two different ways, percentage spacing and font point spacing:
@@ -297,10 +297,10 @@ public interface TextParagraph<
      *      // spacing will be 48 points
      *      paragraph.setLineSpacing(-48.0);
      * </code></pre>
-     * 
-     * @param lineSpacing the vertical line spacing
+     *
+     * @param lineSpacing the vertical line spacing or null, to unset.
      */
-    void setLineSpacing(Double lineSpacing);
+    void setLineSpacingValue(Double lineSpacing);
 
     String getDefaultFontFamily();
     

@@ -153,7 +153,7 @@ public class DrawTextParagraph implements Drawable {
 //        }
 
         //The vertical line spacing
-        Double spacing = paragraph.getLineSpacing();
+        Double spacing = paragraph.getLineSpacingValue();
         if (spacing == null) {
             spacing = 100d;
         }

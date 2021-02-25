@@ -125,7 +125,7 @@ class TestXSLFAutoShape {
 
         assertNull(p.getIndent());
         assertEquals(0, p.getLeftMargin(), 0);
-        assertNull(p.getLineSpacing());
+        assertNull(p.getLineSpacingValue());
         assertNull(p.getSpaceAfter());
         assertNull(p.getSpaceBefore());
         assertEquals(0, p.getIndentLevel());
@@ -185,16 +185,16 @@ class TestXSLFAutoShape {
         assertFalse(p.getXmlObject().getPPr().getSpcBef().isSetSpcPct());
 
         assertFalse(p.getXmlObject().getPPr().isSetLnSpc());
-        p.setLineSpacing(200d);
+        p.setLineSpacingValue(200d);
         assertEquals(200000, p.getXmlObject().getPPr().getLnSpc().getSpcPct().getVal());
         assertFalse(p.getXmlObject().getPPr().getLnSpc().isSetSpcPts());
-        p.setLineSpacing(100d);
+        p.setLineSpacingValue(100d);
         assertEquals(100000, p.getXmlObject().getPPr().getLnSpc().getSpcPct().getVal());
         assertFalse(p.getXmlObject().getPPr().getLnSpc().isSetSpcPts());
-        p.setLineSpacing(-20d);
+        p.setLineSpacingValue(-20d);
         assertEquals(2000, p.getXmlObject().getPPr().getLnSpc().getSpcPts().getVal());
         assertFalse(p.getXmlObject().getPPr().getLnSpc().isSetSpcPct());
-        p.setLineSpacing(-10d);
+        p.setLineSpacingValue(-10d);
         assertEquals(1000, p.getXmlObject().getPPr().getLnSpc().getSpcPts().getVal());
         assertFalse(p.getXmlObject().getPPr().getLnSpc().isSetSpcPct());
 

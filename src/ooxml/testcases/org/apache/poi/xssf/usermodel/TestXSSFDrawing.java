@@ -37,6 +37,7 @@ import org.apache.poi.ss.usermodel.FontUnderline;
 import org.apache.poi.ss.usermodel.ShapeTypes;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.TextAlignment;
 import org.apache.poi.xssf.XSSFTestDataSamples;
 import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGroupTransform2D;
@@ -596,6 +597,9 @@ class TestXSSFDrawing {
         assertEquals(TextAlign.LEFT, paras.get(0).getTextAlign());
         assertEquals(TextAlign.CENTER, paras.get(1).getTextAlign());
         assertEquals(TextAlign.RIGHT, paras.get(2).getTextAlign());
+        assertEquals(TextAlignment.LEFT, paras.get(0).getTextAlignment());
+        assertEquals(TextAlignment.CENTER, paras.get(1).getTextAlignment());
+        assertEquals(TextAlignment.RIGHT, paras.get(2).getTextAlignment());
 
         Color clr = paras.get(0).getTextRuns().get(0).getFontColor();
         assertArrayEquals(

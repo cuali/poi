@@ -313,11 +313,11 @@ class TestXSLFTextParagraph {
         p.setIndentLevel(2);
         assertEquals(2, p.getIndentLevel());
 
-        assertNull(p.getLineSpacing());
-        p.setLineSpacing(200.);
-        assertEquals(200.0, p.getLineSpacing(), 0);
-        p.setLineSpacing(-15.);
-        assertEquals(-15.0, p.getLineSpacing(), 0);
+        assertNull(p.getLineSpacingValue());
+        p.setLineSpacingValue(200.);
+        assertEquals(200.0, p.getLineSpacingValue(), 0);
+        p.setLineSpacingValue(-15.);
+        assertEquals(-15.0, p.getLineSpacingValue(), 0);
 
         assertNull(p.getSpaceAfter());
         p.setSpaceAfter(200.);
