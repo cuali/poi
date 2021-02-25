@@ -594,9 +594,6 @@ class TestXSSFDrawing {
         assertEquals("Line 1\nLine 2\nLine 3", textbox.getText());	// check content of entire textbox
 
         // check attributes of paragraphs
-        assertEquals(TextAlign.LEFT, paras.get(0).getTextAlign());
-        assertEquals(TextAlign.CENTER, paras.get(1).getTextAlign());
-        assertEquals(TextAlign.RIGHT, paras.get(2).getTextAlign());
         assertEquals(TextAlignment.LEFT, paras.get(0).getTextAlignment());
         assertEquals(TextAlignment.CENTER, paras.get(1).getTextAlignment());
         assertEquals(TextAlignment.RIGHT, paras.get(2).getTextAlignment());

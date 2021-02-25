@@ -371,31 +371,6 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
     }
 
     @Override
-    public void setIndent(Double indent){
-        if ((indent == null) && !_p.isSetPPr()) {
-            return;
-        }
-        CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
-        if(indent == null) {
-            if(pr.isSetIndent()) {
-                pr.unsetIndent();
-            }
-        } else {
-            pr.setIndent(Units.toEMU(indent));
-        }
-    }
-
-    @Override
-    public Double getIndent() {
-        return fetchParagraphProperty((props, val) -> {
-            if (props.isSetIndent()) {
-                val.accept(Units.toPoints(props.getIndent()));
-            }
-        });
-    }
-
-
-    @Override
     public void setLeftMargin(Double leftMargin){
         if (leftMargin == null && !_p.isSetPPr()) {
             return;
@@ -799,9 +774,9 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
             setLeftMargin(leftMargin);
         }
 
-        Double indent = other.getIndent();
-        if (doubleNotEquals(indent, getIndent())) {
-            setIndent(indent);
+        Double indentation = other.getIndentation();
+        if (doubleNotEquals(indentation, getIndentation())) {
+            setIndentation(indentation);
         }
 
         Double spaceAfter = other.getSpaceAfter();

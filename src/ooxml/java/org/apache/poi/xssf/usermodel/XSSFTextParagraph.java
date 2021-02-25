@@ -80,15 +80,7 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
      * Add a new run of text
      *
      * @return a new run of text
-     *
-     * @deprecated prefer {@link #addRegularRun(String)}
      */
-    @Deprecated
-    @Removal(version = "6.0.0")
-    public XSSFTextRun addNewTextRun() {
-
-    }
-
     public XSSFTextRun addRegularRun(String text) {
         XDDFTextRun xddfTextRun = super.appendRegularRun(text);
         _runs.remove(xddfTextRun);
@@ -108,33 +100,6 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
         XSSFTextRun run = new XSSFTextRun((CTTextLineBreak)xddfTextRun.getXmlObject(), this);
         _runs.add(run);
         return run;
-    }
-
-    /**
-     * Returns the alignment that is applied to the paragraph.
-     *
-     * If this attribute is omitted, then a value of left is implied.
-     * @return alignment that is applied to the paragraph
-     * @deprecated prefer {@link #getTextAlignment()}
-     */
-    @Deprecated
-    @Removal(version = "6.0.0")
-    public TextAlign getTextAlign(){
-        return TextAlign.legacy(getTextAlignment());
-    }
-
-    /**
-     * Specifies the alignment that is to be applied to the paragraph.
-     * Possible values for this include left, right, centered, justified and distributed,
-     * see {@link org.apache.poi.xssf.usermodel.TextAlign}.
-     *
-     * @param align text align
-     * @deprecated prefer {@link #setTextAlignment(TextAlignment)}
-     */
-    @Deprecated
-    @Removal(version = "6.0.0")
-    public void setTextAlign(TextAlign align){
-        setTextAlignment(TextAlign.modernize(align));
     }
 
     /**
@@ -310,40 +275,6 @@ public class XSSFTextParagraph extends XDDFTextParagraph implements TextContaine
             if(pr.isSetBuSzPct()) pr.unsetBuSzPct();
         }
     }
-
-    /**
-     * Specifies the indent size that will be applied to the first line of text in the paragraph.
-     *
-     * @param value the indent in points, -1 to unset indent and use the default of 0.
-     */
-    public void setIndent(double value){
-        CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
-        if(value == -1) {
-            if(pr.isSetIndent()) pr.unsetIndent();
-        } else {
-            pr.setIndent(Units.toEMU(value));
-        }
-    }
-
-    /**
-     *
-     * @return the indent applied to the first line of text in the paragraph.
-     */
-    public double getIndent(){
-        ParagraphPropertyFetcher<Double> fetcher = new ParagraphPropertyFetcher<Double>(getLevel()){
-            public boolean fetch(CTTextParagraphProperties props){
-                if(props.isSetIndent()){
-                    setValue(Units.toPoints(props.getIndent()));
-                    return true;
-                }
-                return false;
-            }
-        };
-        fetchParagraphProperty(fetcher);
-
-        return fetcher.getValue() == null ? 0 : fetcher.getValue();
-    }
-
 
 
     /**

@@ -246,12 +246,12 @@ public final class HSLFTextRun implements TextRun {
 	}
 
 	@Override
-	public boolean isStrikethrough() {
+	public boolean isStrikeThrough() {
 		return isCharFlagsTextPropVal(CharFlagsTextProp.STRIKETHROUGH_IDX);
 	}
 
 	@Override
-	public void setStrikethrough(boolean flag) {
+	public void setStrikeThrough(boolean flag) {
 		setCharFlagsTextPropVal(CharFlagsTextProp.STRIKETHROUGH_IDX, flag);
 	}
 
@@ -448,8 +448,8 @@ public final class HSLFTextRun implements TextRun {
     }
 
     @Override
-    public TextCap getTextCap() {
-        return TextCap.NONE;
+    public TextCapitals getTextCapitals() {
+        return TextCapitals.NONE;
     }
 
     @Override

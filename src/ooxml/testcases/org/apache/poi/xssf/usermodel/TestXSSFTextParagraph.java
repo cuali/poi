@@ -57,20 +57,8 @@ class TestXSSFTextParagraph {
 
             assertNotNull(text.getTextRuns());
             assertEquals(2, text.getTextRuns().size());
-            text.addNewTextRun();
-            assertEquals(3, text.getTextRuns().size());
             text.addRegularRun("");
-            assertEquals(4, text.getTextRuns().size());
-
-            assertEquals(TextAlign.LEFT, text.getTextAlign());
-            text.setTextAlign(null);
-            assertEquals(TextAlign.LEFT, text.getTextAlign());
-            text.setTextAlign(TextAlign.CENTER);
-            assertEquals(TextAlign.CENTER, text.getTextAlign());
-            text.setTextAlign(TextAlign.RIGHT);
-            assertEquals(TextAlign.RIGHT, text.getTextAlign());
-            text.setTextAlign(null);
-            assertEquals(TextAlign.LEFT, text.getTextAlign());
+            assertEquals(3, text.getTextRuns().size());
 
             assertEquals(TextAlignment.LEFT, text.getTextAlignment());
             text.setTextAlignment(null);
