@@ -105,7 +105,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
         } else {
             _textBody = new XDDFTextBody(this, body);
             for (int i = 0; i < body.sizeOfPArray(); i++) {
-                _paragraphs.add(new XSSFTextParagraph(body.getPArray(i), ctShape));
+                _paragraphs.add(new XSSFTextParagraph(body.getPArray(i), _textBody));
             }
         }
     }
@@ -436,7 +436,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
     public void setText(String text) {
         clearText();
 
-        addNewTextParagraph().addNewTextRun().setText(text);
+        addNewTextParagraph().addRegularRun(text);
     }
 
     /**
@@ -479,7 +479,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
 
         clearText();
         ctShape.getTxBody().setPArray(new CTTextParagraph[] { p });
-        _paragraphs.add(new XSSFTextParagraph(ctShape.getTxBody().getPArray(0), ctShape));
+        _paragraphs.add(new XSSFTextParagraph(ctShape.getTxBody().getPArray(0), new XDDFTextBody(this, ctShape.getTxBody())));
     }
 
     /**
@@ -500,7 +500,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
     public XSSFTextParagraph addNewTextParagraph() {
         CTTextBody txBody = ctShape.getTxBody();
         CTTextParagraph p = txBody.addNewP();
-        XSSFTextParagraph paragraph = new XSSFTextParagraph(p, ctShape);
+        XSSFTextParagraph paragraph = new XSSFTextParagraph(p, new XDDFTextBody(this, txBody));
         _paragraphs.add(paragraph);
         return paragraph;
     }
@@ -512,7 +512,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
      */
     public XSSFTextParagraph addNewTextParagraph(String text) {
         XSSFTextParagraph paragraph = addNewTextParagraph();
-        paragraph.addNewTextRun().setText(text);
+        paragraph.addRegularRun(text);
         return paragraph;
     }
 
@@ -553,7 +553,7 @@ public class XSSFSimpleShape extends XSSFShape implements Iterable<XSSFTextParag
 
         // Note: the XSSFTextParagraph constructor will create its required
         // XSSFTextRuns from the provided CTTextParagraph
-        XSSFTextParagraph paragraph = new XSSFTextParagraph(p, ctShape);
+        XSSFTextParagraph paragraph = new XSSFTextParagraph(p, new XDDFTextBody(this, txBody));
         _paragraphs.add(paragraph);
 
         return paragraph;

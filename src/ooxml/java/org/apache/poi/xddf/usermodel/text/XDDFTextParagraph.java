@@ -27,11 +27,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.collections4.iterators.IteratorIterable;
 import org.apache.commons.collections4.iterators.ReverseListIterator;
-<<<<<<< HEAD
 import org.apache.poi.ooxml.util.POIXMLUnits;
-=======
-import org.apache.poi.sl.usermodel.TextRun;
->>>>>>> a0aae58...  Let XSLFText* and XSSFText* extend from XDDFText*
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.LocaleUtil;
@@ -477,7 +473,7 @@ public class XDDFTextParagraph {
      */
     public Double getLineSpacingValue(){
         XDDFSpacing spacing = getLineSpacing();
-        double lnSpc = 100.0;
+        Double lnSpc = null;
         if (spacing != null) {
             switch (spacing.getType()) {
                 case PERCENT:

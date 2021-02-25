@@ -54,22 +54,22 @@ public interface TextParagraph<
          * Align text so that it is justified across the whole line. It
          * is smart in the sense that it will not justify sentences
          * which are short
-         * 
+         *
          * For horizontal text, flush left and right.
          * For vertical text, flush top and bottom.
          */
         JUSTIFY,
-        
+
         /**
          * Kashida justify low.
-         */    
+         */
         JUSTIFY_LOW,
 
         /**
          * Distribute space between characters.
          */
         DIST,
-        
+
         /**
          * Thai distribution justification.
          */
@@ -77,28 +77,28 @@ public interface TextParagraph<
     }
 
     /**
-     * 
+     *
      */
     public enum FontAlign {
         AUTO,
-        
+
         /**
          * Characters hang from top of line height.
          * Also known as "Hanging"
          */
         TOP,
-        
+
         /**
          * Characters centered within line height.
          */
         CENTER,
-        
+
         /**
          * Place characters on font baseline.
-         * Also known as "Roman" 
+         * Also known as "Roman"
          */
         BASELINE,
-        
+
         /**
          * Characters are anchored to the very bottom of a single line.
          * This is different than BASELINE because of letters such as "g", "q", and "y".
@@ -106,11 +106,11 @@ public interface TextParagraph<
          */
         BOTTOM
     }
-    
+
     public interface BulletStyle {
         String getBulletCharacter();
         String getBulletFont();
-        
+
         /**
          * The bullet point font size
          * If bulletFontSize >= 0, then space is a percentage of normal line height.
@@ -124,7 +124,7 @@ public interface TextParagraph<
          * Convenience function to set a solid color
          */
         void setBulletFontColor(Color color);
-        
+
         void setBulletFontColor(PaintStyle color);
 
         /**
@@ -133,7 +133,7 @@ public interface TextParagraph<
          * A {@code null} value means to use the text font color.
          */
         PaintStyle getBulletFontColor();
-        
+
         AutoNumberingScheme getAutoNumberingScheme();
         /**
          * Index (1-based) of the first auto number value, or null if auto numbering scheme
@@ -173,8 +173,8 @@ public interface TextParagraph<
      *
      * @param spaceBefore the vertical white space before the paragraph, null to unset
      */
-    void setSpaceBefore(Double spaceBefore);    
-    
+    void setSpaceBefore(Double spaceBefore);
+
     /**
      * The amount of vertical white space after the paragraph
      * This may be specified in two different ways, percentage spacing and font point spacing:
@@ -185,7 +185,7 @@ public interface TextParagraph<
      *
      * @return the vertical white space after the paragraph or null, if unset
      */
-    Double getSpaceAfter();    
+    Double getSpaceAfter();
 
     /**
      * Set the amount of vertical white space that will be present after the paragraph.
@@ -207,7 +207,7 @@ public interface TextParagraph<
      * @param spaceAfter the vertical white space after the paragraph, null to unset
      */
     public void setSpaceAfter(Double spaceAfter);
-    
+
     /**
      * @return the left margin (in points) of the paragraph or null, if unset
      */
@@ -217,19 +217,19 @@ public interface TextParagraph<
      * Specifies the left margin of the paragraph. This is specified in addition to the text body
      * inset and applies only to this text paragraph. That is the text body Inset and the LeftMargin
      * attributes are additive with respect to the text position.
-     * 
+     *
      * @param leftMargin the left margin (in points) or null to unset
      */
     void setLeftMargin(Double leftMargin);
-    
-    
+
+
     /**
      * Specifies the right margin of the paragraph. This is specified in addition to the text body
      * inset and applies only to this text paragraph. That is the text body Inset and the RightMargin
      * attributes are additive with respect to the text position.
-     * 
+     *
      * The right margin is not support and therefore ignored by the HSLF implementation.
-     * 
+     *
      * @return the right margin (in points) of the paragraph or null, if unset
      */
     Double getRightMargin();
@@ -238,25 +238,25 @@ public interface TextParagraph<
      * @param rightMargin the right margin (in points) of the paragraph
      */
     void setRightMargin(Double rightMargin);
-    
+
     /**
-     * @return the indent (in points) applied to the first line of text in the paragraph.
+     * @return the indentation (in points) applied to the first line of text in the paragraph.
      *  or null, if unset
      */
-    Double getIndent();
-    
+    Double getIndentation();
+
     /**
-     * Specifies the indent size that will be applied to the first line of text in the paragraph.   
-     * 
-     * @param indent the indent (in points) applied to the first line of text in the paragraph
+     * Specifies the indentation size that will be applied to the first line of text in the paragraph.
+     *
+     * @param indentation the indentation (in points) applied to the first line of text in the paragraph
      */
-    void setIndent(Double indent);
+    void setIndentation(Double indentation);
 
 
     /**
      * @return the text level of this paragraph (0-based). Default is 0.
-     */    
-    int getIndentLevel();
+     */
+    int getIndentationLevel();
 
     /**
      * Specifies the particular level text properties that this paragraph will follow.
@@ -265,8 +265,8 @@ public interface TextParagraph<
      *
      * @param level the level (0 ... 4)
      */
-    void setIndentLevel(int level);
-    
+    void setIndentationLevel(int level);
+
     /**
      * Returns the vertical line spacing that is to be used within a paragraph.
      * This may be specified in two different ways, percentage spacing and font point spacing:
@@ -303,12 +303,12 @@ public interface TextParagraph<
     void setLineSpacingValue(Double lineSpacing);
 
     String getDefaultFontFamily();
-    
+
     /**
      * @return the default font size, in case its not set in the textrun or null, if unset
      */
     Double getDefaultFontSize();
-    
+
     /**
      * Returns the alignment that is applied to the paragraph.
      *
@@ -325,21 +325,21 @@ public interface TextParagraph<
      * see {@link org.apache.poi.sl.usermodel.TextParagraph.TextAlign}.
      *
      * @param align text align
-     */    
+     */
     void setTextAlign(TextAlign align);
-    
+
     /**
      * Returns the font alignment that is applied to the paragraph.
      *
      * If this attribute is omitted, then null is return,
      * user code can imply the a value of {@link FontAlign#AUTO}
-     * 
+     *
      * @return alignment that is applied to the paragraph
      */
     FontAlign getFontAlign();
-    
+
     /**
-     * @return the bullet style of the paragraph, if {@code null} then no bullets are used 
+     * @return the bullet style of the paragraph, if {@code null} then no bullets are used
      */
     BulletStyle getBulletStyle();
 
@@ -351,15 +351,15 @@ public interface TextParagraph<
      * @param styles
      */
     void setBulletStyle(Object... styles);
-    
+
     /**
      * @return the default size for a tab character within this paragraph in points, null if unset
      */
     Double getDefaultTabSize();
 
-    
+
     TextShape<S,P> getParentShape();
-    
+
     /**
      * Fetch the text runs that are contained within this block of text
      */
@@ -368,14 +368,14 @@ public interface TextParagraph<
     /**
      * Convenience method to determine if this text paragraph is part of
      * the slide header or footer
-     * 
+     *
      * @return true if this paragraph is part of a header or footer placeholder
-     * 
+     *
      * @since POI 3.15-beta2
      */
     boolean isHeaderOrFooter();
-    
-    
+
+
     /**
      * Get the {@link TabStop TabStops} - the list can't be and it's entries shouldn't be modified.
      * Opposed to other properties, this method is not cascading to the master sheet,
@@ -383,7 +383,7 @@ public interface TextParagraph<
      * different levels aren't merged.
      *
      * @return the tabstop collection or {@code null} if no tabstops are defined
-     * 
+     *
      * @since POI 4.0.0
      */
     List<? extends TabStop> getTabStops();
@@ -392,7 +392,7 @@ public interface TextParagraph<
      * Set the {@link TabStop} collection
      *
      * @param tabStops the {@link TabStop} collection
-     * 
+     *
      * @since POI 4.0.0
      */
     void addTabStops(double positionInPoints, TabStop.TabStopType tabStopType);
@@ -400,7 +400,7 @@ public interface TextParagraph<
     /**
      * Removes the tabstops of this paragraphs.
      * This doesn't affect inherited tabstops, e.g. inherited by the slide master
-     * 
+     *
      * @since POI 4.0.0
      */
     void clearTabStops();

@@ -814,7 +814,7 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
 
     @Override
     public String getDefaultFontFamily() {
-        String family = _runs.isEmpty() ? null : ((XSLFTextRun) _runs.get(0)).getFontFamily());
+        String family = _runs.isEmpty() ? null : ((XSLFTextRun) _runs.get(0)).getFontFamily();
         return (family == null) ? "Arial" : family;
     }
 
@@ -998,7 +998,6 @@ public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagrap
         return new XSLFTextRun(r, this);
     }
 
-    @SuppressWarnings("WeakerAccess")
     protected XSLFTextRun newTextRun(CTTextLineBreak r) {
         return new XSLFLineBreak(r, this);
     }
