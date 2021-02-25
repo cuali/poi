@@ -24,7 +24,16 @@ import java.util.List;
 
 import org.apache.poi.ooxml.util.POIXMLUnits;
 import org.apache.poi.util.Internal;
+import org.apache.poi.util.Removal;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.TextContainer;
+import org.apache.poi.xddf.usermodel.text.XDDFSpacing;
+import org.apache.poi.xddf.usermodel.text.XDDFSpacingPercent;
+import org.apache.poi.xddf.usermodel.text.XDDFSpacingPoints;
+import org.apache.poi.xddf.usermodel.text.XDDFTextBody;
+import org.apache.poi.xddf.usermodel.text.XDDFTextParagraph;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
+import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xssf.model.ParagraphPropertyFetcher;
 import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.*;
@@ -34,42 +43,21 @@ import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTShape;
  * Represents a paragraph of text within the containing text body.
  * The paragraph is the highest level text separation mechanism.
  */
-public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
-    private final CTTextParagraph _p;
-    private final CTShape _shape;
-    private final List<XSSFTextRun> _runs;
+public class XSSFTextParagraph extends XDDFTextParagraph implements TextContainer, Iterable<XSSFTextRun>{
 
-    XSSFTextParagraph(CTTextParagraph p, CTShape ctShape){
-        _p = p;
-        _shape = ctShape;
-        _runs = new ArrayList<>();
+    XSSFTextParagraph(CTTextParagraph p, XDDFTextBody parent){
+        super(p, parent);
 
-        for(XmlObject ch : _p.selectPath("*")){
-            if(ch instanceof CTRegularTextRun){
-                CTRegularTextRun r = (CTRegularTextRun)ch;
-                _runs.add(new XSSFTextRun(r, this));
-            } else if (ch instanceof CTTextLineBreak){
-                CTTextLineBreak br = (CTTextLineBreak)ch;
-                CTRegularTextRun r = CTRegularTextRun.Factory.newInstance();
-                r.setRPr(br.getRPr());
-                r.setT("\n");
-                _runs.add(new XSSFTextRun(r, this));
-            } else if (ch instanceof CTTextField){
-                CTTextField f = (CTTextField)ch;
-                CTRegularTextRun r = CTRegularTextRun.Factory.newInstance();
-                r.setRPr(f.getRPr());
-                r.setT(f.getT());
-                _runs.add(new XSSFTextRun(r, this));
+        _runs.clear();
+        for(XmlObject r : _p.selectPath("*")){
+            if (r instanceof CTTextLineBreak) {
+                _runs.add(new XSSFTextRun((CTTextLineBreak)r, this));
+            } else if (r instanceof CTTextField) {
+                _runs.add(new XSSFTextRun((CTTextField)r, this));
+            } else if (r instanceof CTRegularTextRun) {
+                _runs.add(new XSSFTextRun((CTRegularTextRun)r, this));
             }
         }
-    }
-
-    public String getText(){
-        StringBuilder out = new StringBuilder();
-        for (XSSFTextRun r : _runs) {
-            out.append(r.getText());
-        }
-        return out.toString();
     }
 
     @Internal
@@ -77,29 +65,35 @@ public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
         return _p;
     }
 
-    @Internal
-    public CTShape getParentShape(){
-        return _shape;
-    }
-
     public List<XSSFTextRun> getTextRuns(){
-        return _runs;
+        final ArrayList<XSSFTextRun> runs = new ArrayList<>(_runs.size());
+        for (XDDFTextRun r : _runs) {
+            runs.add((XSSFTextRun) r);
+        }
+        return runs;
     }
 
     public Iterator<XSSFTextRun> iterator(){
-        return _runs.iterator();
+        return getTextRuns().iterator();
     }
 
     /**
      * Add a new run of text
      *
      * @return a new run of text
+     *
+     * @deprecated prefer {@link #addRegularRun(String)}
      */
-    public XSSFTextRun addNewTextRun(){
-        CTRegularTextRun r = _p.addNewR();
-        CTTextCharacterProperties rPr = r.addNewRPr();
-        rPr.setLang("en-US");
-        XSSFTextRun run = new XSSFTextRun(r, this);
+    @Deprecated
+    @Removal(version = "6.0.0")
+    public XSSFTextRun addNewTextRun() {
+
+    }
+
+    public XSSFTextRun addRegularRun(String text) {
+        XDDFTextRun xddfTextRun = super.appendRegularRun(text);
+        _runs.remove(xddfTextRun);
+        XSSFTextRun run = new XSSFTextRun((CTRegularTextRun)xddfTextRun.getXmlObject(), this);
         _runs.add(run);
         return run;
     }
@@ -110,17 +104,9 @@ public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
      * @return text run representing this line break ('\n')
      */
     public XSSFTextRun addLineBreak(){
-        CTTextLineBreak br = _p.addNewBr();
-        CTTextCharacterProperties brProps = br.addNewRPr();
-        if(_runs.size() > 0){
-            // by default line break has the font size of the last text run
-            CTTextCharacterProperties prevRun = _runs.get(_runs.size() - 1).getRPr();
-            brProps.set(prevRun);
-        }
-        CTRegularTextRun r = CTRegularTextRun.Factory.newInstance();
-        r.setRPr(brProps);
-        r.setT("\n");
-        XSSFTextRun run = new XSSFLineBreak(r, this, brProps);
+        XDDFTextRun xddfTextRun = super.appendLineBreak();
+        _runs.remove(xddfTextRun);
+        XSSFTextRun run = new XSSFTextRun((CTTextLineBreak)xddfTextRun.getXmlObject(), this);
         _runs.add(run);
         return run;
     }
@@ -516,11 +502,10 @@ public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
      * @param linespacing the vertical line spacing
      */
     public void setLineSpacing(double linespacing){
-        CTTextParagraphProperties pr = _p.isSetPPr() ? _p.getPPr() : _p.addNewPPr();
-        CTTextSpacing spc = CTTextSpacing.Factory.newInstance();
-        if(linespacing >= 0) spc.addNewSpcPct().setVal((int)(linespacing*1000));
-        else spc.addNewSpcPts().setVal((int)(-linespacing*100));
-        pr.setLnSpc(spc);
+        if(linespacing >= 0)
+            super.setLineSpacing(new XDDFSpacingPercent(linespacing));
+        else
+            super.setLineSpacing(new XDDFSpacingPoints(-linespacing));
     }
 
     /**
@@ -533,31 +518,21 @@ public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
      *
      * @return the vertical line spacing.
      */
-    public double getLineSpacing(){
-        ParagraphPropertyFetcher<Double> fetcher = new ParagraphPropertyFetcher<Double>(getLevel()){
-            public boolean fetch(CTTextParagraphProperties props){
-                if(props.isSetLnSpc()){
-                    CTTextSpacing spc = props.getLnSpc();
-
-                    if(spc.isSetSpcPct()) setValue( POIXMLUnits.parsePercent(spc.getSpcPct().xgetVal())*0.001 );
-                    else if (spc.isSetSpcPts()) setValue( -spc.getSpcPts().getVal()*0.01 );
-                    return true;
-                }
-                return false;
-            }
-        };
-        fetchParagraphProperty(fetcher);
-
-        double lnSpc = fetcher.getValue() == null ? 100 : fetcher.getValue();
-        if(lnSpc > 0) {
-            // check if the percentage value is scaled
-            CTTextNormalAutofit normAutofit = _shape.getTxBody().getBodyPr().getNormAutofit();
-            if(normAutofit != null) {
-                double scale = 1 - (double)normAutofit.getLnSpcReduction() / 100000;
-                lnSpc *= scale;
+    public double getLineSpacingValue(){
+        XDDFSpacing spacing = super.getLineSpacing();
+        double lnSpc = 100.0;
+        if (spacing != null) {
+            switch (spacing.getType()) {
+                case PERCENT:
+                    lnSpc = ((XDDFSpacingPercent) spacing).getPercent();
+                    double lnSpcRed = _parent.getBodyProperties().getAutoFit().getLineSpaceReduction();
+                    lnSpc *= 1 - (lnSpcRed / 100_000);
+                break;
+                case POINTS:
+                    lnSpc = - ((XDDFSpacingPoints) spacing).getPoints();
+                break;
             }
         }
-
         return lnSpc;
     }
 
@@ -866,5 +841,17 @@ public class XSSFTextParagraph implements Iterable<XSSFTextRun>{
     @Override
     public String toString(){
         return "[" + getClass() + "]" + getText();
+    }
+
+    @Override
+    public <R> Optional<R> findDefinedParagraphProperty(Predicate<CTTextParagraphProperties> isSet, Function<CTTextParagraphProperties, R> getter) {
+        // only required for the compiler not to fail
+        return super.findDefinedParagraphProperty(isSet,getter);
+    }
+
+    @Override
+    public <R> Optional<R> findDefinedRunProperty(Predicate<CTTextCharacterProperties> isSet, Function<CTTextCharacterProperties, R> getter) {
+        // only required for the compiler not to fail
+        return super.findDefinedRunProperty(isSet, getter);
     }
 }

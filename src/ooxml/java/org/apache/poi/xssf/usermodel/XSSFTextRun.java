@@ -19,12 +19,19 @@ package org.apache.poi.xssf.usermodel;
 import java.awt.Color;
 
 import org.apache.poi.ooxml.util.POIXMLUnits;
+import org.apache.poi.sl.usermodel.TextRun;
+import org.apache.poi.util.Removal;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.StrikeType;
+import org.apache.poi.xddf.usermodel.text.UnderlineType;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTRegularTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSRgbColor;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSolidColorFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTextField;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextFont;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTextLineBreak;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextNormalAutofit;
 import org.openxmlformats.schemas.drawingml.x2006.main.STTextStrikeType;
 import org.openxmlformats.schemas.drawingml.x2006.main.STTextUnderlineType;
@@ -33,29 +40,18 @@ import org.openxmlformats.schemas.drawingml.x2006.main.STTextUnderlineType;
  * Represents a run of text within the containing text body. The run element is the
  * lowest level text separation mechanism within a text body.
  */
-public class XSSFTextRun {
-    private final CTRegularTextRun _r;
-    private final XSSFTextParagraph _p;
+public class XSSFTextRun extends XDDFTextRun {
+
+    XSSFTextRun(CTTextLineBreak r, XSSFTextParagraph p){
+        super(r, p);
+    }
+
+    XSSFTextRun(CTTextField r, XSSFTextParagraph p){
+        super(r, p);
+    }
 
     XSSFTextRun(CTRegularTextRun r, XSSFTextParagraph p){
-        _r = r;
-        _p = p;
-    }
-
-    XSSFTextParagraph getParentParagraph(){
-        return _p;
-    }
-
-    public String getText(){
-        return _r.getT();
-    }
-
-    public void setText(String text){
-        _r.setT(text);
-    }
-
-    public CTRegularTextRun getXmlObject(){
-        return _r;
+        super(r, p);
     }
 
     public void setFontColor(Color color){
@@ -86,72 +82,6 @@ public class XSSFTextRun {
         }
 
         return new Color(0, 0, 0);
-    }
-
-    /**
-     *
-     * @param fontSize  font size in points.
-     * The value of <code>-1</code> unsets the Sz attribute from the underlying xml bean
-     */
-    public void setFontSize(double fontSize){
-        CTTextCharacterProperties rPr = getRPr();
-        if(fontSize == -1.0) {
-            if(rPr.isSetSz()) rPr.unsetSz();
-        } else {
-            if(fontSize < 1.0) {
-                throw new IllegalArgumentException("Minimum font size is 1pt but was " + fontSize);
-            }
-
-            rPr.setSz((int)(100*fontSize));
-        }
-    }
-
-    /**
-     * @return font size in points or -1 if font size is not set.
-     */
-    public double getFontSize(){
-        double scale = 1;
-        double size = XSSFFont.DEFAULT_FONT_SIZE;	// default font size
-        CTTextNormalAutofit afit = getParentParagraph().getParentShape().getTxBody().getBodyPr().getNormAutofit();
-        if(afit != null) scale = (double)afit.getFontScale() / 100000;
-
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetSz()){
-            size = rPr.getSz()*0.01;
-        }
-
-        return size * scale;
-    }
-
-    /**
-     *
-     * @return the spacing between characters within a text run,
-     * If this attribute is omitted then a value of 0 or no adjustment is assumed.
-     */
-    public double getCharacterSpacing(){
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetSpc()){
-            return Units.toPoints(POIXMLUnits.parseLength(rPr.xgetSpc()));
-        }
-        return 0;
-    }
-
-    /**
-     * Set the spacing between characters within a text run.
-     * <p>
-     * The spacing is specified in points. Positive values will cause the text to expand,
-     * negative values to condense.
-     * </p>
-     *
-     * @param spc  character spacing in points.
-     */
-    public void setCharacterSpacing(double spc){
-        CTTextCharacterProperties rPr = getRPr();
-        if(spc == 0.0) {
-            if(rPr.isSetSpc()) rPr.unsetSpc();
-        } else {
-            rPr.setSpc((int)(100*spc));
-        }
     }
 
     /**
@@ -206,34 +136,16 @@ public class XSSFTextRun {
     }
 
     /**
-     * Specifies whether a run of text will be formatted as strikethrough text.
+     * Specifies whether a run of text will be formatted as single strikethrough text.
      *
-     * @param strike whether a run of text will be formatted as strikethrough text.
+     * @param strike whether a run of text will be formatted as single strikethrough text.
+     *
+     * @deprecated prefer {@link #setStrikeThrough(StrikeType)}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setStrikethrough(boolean strike) {
         getRPr().setStrike(strike ? STTextStrikeType.SNG_STRIKE : STTextStrikeType.NO_STRIKE);
-    }
-
-    /**
-     * @return whether a run of text will be formatted as strikethrough text. Default is false.
-     */
-    public boolean isStrikethrough() {
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetStrike()){
-            return rPr.getStrike() != STTextStrikeType.NO_STRIKE;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a run of text will be formatted as a superscript text. Default is false.
-     */
-    public boolean isSuperscript() {
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetBaseline()){
-            return POIXMLUnits.parsePercent(rPr.xgetBaseline()) > 0;
-        }
-        return false;
     }
 
     /**
@@ -244,111 +156,67 @@ public class XSSFTextRun {
      *  </p>
      *
      * @param baselineOffset
+     *
+     * @deprecated prefer {@link #setBaseline(Double)}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setBaselineOffset(double baselineOffset){
-        getRPr().setBaseline((int) baselineOffset * 1000);
+        setBaseline(baselineOffset);
     }
 
     /**
      * Set whether the text in this run is formatted as superscript.
      * Default base line offset is 30%
      *
-     * @see #setBaselineOffset(double)
+     * @deprecated prefer {@link #setSuperscript(Double)}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setSuperscript(boolean flag){
-        setBaselineOffset(flag ? 30. : 0.);
+        setSuperscript(flag ? 30.0 : null);
     }
 
     /**
      * Set whether the text in this run is formatted as subscript.
      * Default base line offset is -25%.
      *
-     * @see #setBaselineOffset(double)
+     * @deprecated prefer {@link #setSubscript(Double)}
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setSubscript(boolean flag){
-        setBaselineOffset(flag ? -25.0 : 0.);
+        setSubscript(flag ? -25.0 : null);
     }
 
     /**
-     * @return whether a run of text will be formatted as a superscript text. Default is false.
-     */
-    public boolean isSubscript() {
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetBaseline()){
-            return POIXMLUnits.parsePercent(rPr.xgetBaseline()) < 0;
-        }
-        return false;
-    }
-
-    /**
-     * @return whether a run of text will be formatted as a superscript text. Default is false.
-     */
-    public TextCap getTextCap() {
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetCap()){
-            return TextCap.values()[rPr.getCap().intValue() - 1];
-        }
-        return TextCap.NONE;
-    }
-
-    /**
-     * Specifies whether this run of text will be formatted as bold text
+     * @return whether a run of text will be formatted as a small caps, all caps or normal text.
      *
-     * @param bold whether this run of text will be formatted as bold text
+     * @deprecated prefer {@link #getCapitals()}
      */
-    public void setBold(boolean bold){
-        getRPr().setB(bold);
-    }
-
-    /**
-     * @return whether this run of text is formatted as bold text
-     */
-    public boolean isBold(){
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetB()){
-            return rPr.getB();
+    @Deprecated
+    @Removal(version = "6.0.0")
+    public TextCap getTextCap() {
+        switch (getCapitals()) {
+            case ALL: return TextCap.ALL;
+            case SMALL: return TextCap.SMALL;
+            default: return TextCap.NONE;
         }
-        return false;
-    }
-
-    /**
-     * @param italic whether this run of text is formatted as italic text
-     */
-    public void setItalic(boolean italic){
-        getRPr().setI(italic);
-    }
-
-    /**
-     * @return whether this run of text is formatted as italic text
-     */
-    public boolean isItalic(){
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetI()){
-            return rPr.getI();
-        }
-        return false;
     }
 
     /**
      * @param underline whether this run of text is formatted as underlined text
+     *
+     * @deprecated use {@link #setUnderline(UnderlineType)} instead
      */
+    @Deprecated
+    @Removal(version = "6.0.0")
     public void setUnderline(boolean underline) {
-        getRPr().setU(underline ? STTextUnderlineType.SNG : STTextUnderlineType.NONE);
-    }
-
-    /**
-     * @return whether this run of text is formatted as underlined text
-     */
-    public boolean isUnderline(){
-        CTTextCharacterProperties rPr = getRPr();
-        if(rPr.isSetU()){
-            return rPr.getU() != STTextUnderlineType.NONE;
-        }
-        return false;
+        super.setUnderline(underline ? UnderlineType.SINGLE : UnderlineType.NONE);
     }
 
     protected CTTextCharacterProperties getRPr(){
-        return _r.isSetRPr() ? _r.getRPr() : _r.addNewRPr();
+        return getOrCreateProps();
     }
 
     @Override

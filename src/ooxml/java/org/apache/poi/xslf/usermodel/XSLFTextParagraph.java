@@ -35,6 +35,9 @@ import org.apache.poi.sl.usermodel.TextParagraph;
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.XDDFTabStop;
+import org.apache.poi.xddf.usermodel.text.XDDFTextParagraph;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.model.ParagraphPropertyFetcher;
 import org.apache.poi.xslf.model.ParagraphPropertyFetcher.ParaPropFetcher;
 import org.apache.xmlbeans.XmlCursor;
@@ -50,9 +53,7 @@ import org.openxmlformats.schemas.presentationml.x2006.main.STPlaceholderType;
  * @since POI-3.8
  */
 @Beta
-public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagraph,XSLFTextRun> {
-    private final CTTextParagraph _p;
-    private final List<XSLFTextRun> _runs;
+public class XSLFTextParagraph extends XDDFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagraph,XSLFTextRun> {
     private final XSLFTextShape _shape;
 
     @FunctionalInterface
@@ -61,19 +62,20 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
     }
 
     XSLFTextParagraph(CTTextParagraph p, XSLFTextShape shape){
-        _p = p;
-        _runs = new ArrayList<>();
+        super(p, shape.getTextBody());
         _shape = shape;
-
+        _runs.clear();
         XmlCursor c = _p.newCursor();
         try {
             if (c.toFirstChild()) {
                 do {
                     XmlObject r = c.getObject();
                     if (r instanceof CTTextLineBreak) {
-                        _runs.add(new XSLFLineBreak((CTTextLineBreak)r, this));
-                    } else if (r instanceof CTRegularTextRun || r instanceof CTTextField) {
-                        _runs.add(new XSLFTextRun(r, this));
+                        _runs.add(new XSLFTextRun((CTTextLineBreak)r, this));
+                    } else if (r instanceof CTTextField) {
+                        _runs.add(new XSLFTextRun((CTTextField)r, this));
+                    } else if (r instanceof CTRegularTextRun) {
+                        _runs.add(new XSLFTextRun((CTRegularTextRun)r, this));
                     }
                 } while (c.toNextSibling());
             }
@@ -84,8 +86,8 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
 
     public String getText(){
         StringBuilder out = new StringBuilder();
-        for (XSLFTextRun r : _runs) {
-            out.append(r.getRawText());
+        for (XDDFTextRun r : _runs) {
+            out.append(r.getText());
         }
         return out.toString();
     }
@@ -98,17 +100,20 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
     @Override
     public XSLFTextShape getParentShape() {
         return _shape;
-
     }
 
     @Override
     public List<XSLFTextRun> getTextRuns(){
-        return _runs;
+        final ArrayList<XSLFTextRun> runs = new ArrayList<>(_runs.size());
+        for (XDDFTextRun r : _runs) {
+            runs.add((XSLFTextRun) r);
+        }
+        return runs;
     }
 
     @Override
     public Iterator<XSLFTextRun> iterator(){
-        return _runs.iterator();
+        return getTextRuns().iterator();
     }
 
     /**
@@ -136,7 +141,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
         CTTextCharacterProperties brProps = run.getRPr(true);
         if(_runs.size() > 0){
             // by default line break has the font size of the last text run
-            CTTextCharacterProperties prevRun = _runs.get(_runs.size() - 1).getRPr(true);
+            CTTextCharacterProperties prevRun = ((XSLFTextRun)_runs.get(_runs.size() - 1)).getRPr(true);
             brProps.set(prevRun);
             // don't copy hlink properties
             if (brProps.isSetHlinkClick()) {
@@ -459,7 +464,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
     }
 
     @SuppressWarnings("WeakerAccess")
-    public double getTabStop(final int idx) {
+    public double getStop(final int idx) {
         Double d = fetchParagraphProperty((props,val) -> fetchTabStop(idx,props,val));
         return (d == null) ? 0. : d;
     }
@@ -688,7 +693,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
      */
     @Internal
     public CTTextParagraphProperties getDefaultMasterStyle(){
-        CTPlaceholder ph = _shape.getPlaceholderDetails().getCTPlaceholder(false);
+        CTPlaceholder ph = getParentShape().getPlaceholderDetails().getCTPlaceholder(false);
         String defaultStyleSelector;
         switch(ph == null ? -1 : ph.getType().intValue()) {
             case STPlaceholderType.INT_TITLE:
@@ -709,7 +714,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
 
         // wind up and find the root master sheet which must be slide master
         final String nsPML = "http://schemas.openxmlformats.org/presentationml/2006/main";
-        XSLFSheet masterSheet = _shape.getSheet();
+        XSLFSheet masterSheet = getParentShape().getSheet();
         for (XSLFSheet m = masterSheet; m != null; m = (XSLFSheet)m.getMasterSheet()) {
             masterSheet = m;
             XmlObject xo = masterSheet.getXmlObject();
@@ -774,12 +779,14 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
         otherC.dispose();
         thisC.dispose();
 
-        for (XSLFTextRun tr : other.getTextRuns()) {
+        for (XDDFTextRun tr : other.getTextRuns()) {
             XmlObject xo = tr.getXmlObject();
             XSLFTextRun run = (xo instanceof CTTextLineBreak)
-                ? newTextRun((CTTextLineBreak)xo)
-                : newTextRun(xo);
-            run.copy(tr);
+                ? newTextRun((CTTextLineBreak) xo)
+                : (xo instanceof CTTextField)
+                    ? newTextRun((CTTextField) xo)
+                    : newTextRun((CTRegularTextRun) xo);
+            run.copy((XSLFTextRun) tr);
             _runs.add(run);
         }
 
@@ -858,7 +865,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
 
     @Override
     public String getDefaultFontFamily() {
-        String family = (_runs.isEmpty() ? null : _runs.get(0).getFontFamily());
+        String family = _runs.isEmpty() ? null : ((XSLFTextRun) _runs.get(0)).getFontFamily());
         return (family == null) ? "Arial" : family;
     }
 
@@ -994,7 +1001,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
         }
         if (!_runs.isEmpty()) {
             int size = _runs.size();
-            XSLFTextRun lastRun = _runs.get(size-1);
+            XSLFTextRun lastRun = (XSLFTextRun) _runs.get(size-1);
             CTTextCharacterProperties cpOther = lastRun.getRPr(false);
             if (cpOther != null) {
                 if (thisP.isSetEndParaRPr()) {
@@ -1012,7 +1019,7 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
 
     @Override
     public boolean isHeaderOrFooter() {
-        CTPlaceholder ph = _shape.getPlaceholderDetails().getCTPlaceholder(false);
+        CTPlaceholder ph = getParentShape().getPlaceholderDetails().getCTPlaceholder(false);
         int phId = (ph == null ? -1 : ph.getType().intValue());
         switch (phId) {
             case STPlaceholderType.INT_SLD_NUM:
@@ -1030,11 +1037,15 @@ public class XSLFTextParagraph implements TextParagraph<XSLFShape,XSLFTextParagr
      *
      * @param r the xml reference
      *
-     * @return a new text paragraph
+     * @return a new text run
      *
      * @since POI 3.15-beta2
      */
-    protected XSLFTextRun newTextRun(XmlObject r) {
+    protected XSLFTextRun newTextRun(CTTextField r) {
+        return new XSLFTextRun(r, this);
+    }
+
+    protected XSLFTextRun newTextRun(CTRegularTextRun r) {
         return new XSLFTextRun(r, this);
     }
 

@@ -77,6 +77,7 @@ import org.apache.poi.sl.usermodel.TextShape;
 import org.apache.poi.sl.usermodel.VerticalAlignment;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.NullPrintStream;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFGroupShape;
@@ -751,7 +752,7 @@ class TestXSLFBugs {
         as.setText("Alpha");
         as.setVerticalAlignment(VerticalAlignment.MIDDLE);
         as.setHorizontalCentered(true);
-        XSLFTextRun tr = as.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun tr = as.getTextParagraphs().get(0).getTextRuns().get(0);
         tr.setFontSize(32d);
         tr.setFontColor(textColor);
         XMLSlideShow ppt2 = XSLFTestDataSamples.writeOutAndReadBack(ppt1);

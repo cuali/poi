@@ -42,6 +42,7 @@ import org.apache.poi.sl.usermodel.VerticalAlignment;
 import org.apache.poi.xddf.usermodel.text.XDDFBodyProperties;
 import org.apache.poi.xddf.usermodel.text.XDDFTextBody;
 import org.apache.poi.xddf.usermodel.text.XDDFTextParagraph;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.XSLFTestDataSamples;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -120,7 +121,7 @@ class TestXSLFTextShape {
         assertEquals("Centered Title", shape1.getText());
         assertEquals("Centered Title",
             tb1.getParagraphs().stream().map(XDDFTextParagraph::getText).collect(Collectors.joining("\n")));
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(44.0, r1.getFontSize(), 0);
         assertEquals(Color.black, getColor(r1.getFontColor()));
@@ -157,7 +158,7 @@ class TestXSLFTextShape {
 
         assertEquals("subtitle", shape2.getText());
         assertEquals("subtitle", tb2.getParagraphs().stream().map(XDDFTextParagraph::getText).collect(Collectors.joining("\n")));
-        XSLFTextRun r2 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r2 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Calibri", r2.getFontFamily());
         assertEquals(32.0, r2.getFontSize(), 0);
         // TODO fix calculation of tint
@@ -197,7 +198,7 @@ class TestXSLFTextShape {
 
         // now check text properties
         assertEquals("Title", shape1.getText());
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(44.0, r1.getFontSize(), 0);
         assertEquals(Color.black, getColor(r1.getFontColor()));
@@ -230,7 +231,7 @@ class TestXSLFTextShape {
         assertEquals(3.6, shape2.getBottomInset(), 0); // 0.05"
         assertEquals(VerticalAlignment.TOP, shape2.getVerticalAlignment());
 
-        XSLFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(0, pr1.getParagraph().getIndentLevel());
         assertEquals("Content", pr1.getRawText());
         assertEquals("Calibri", pr1.getFontFamily());
@@ -239,7 +240,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr1.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr1.getParagraph().getBulletFont());
 
-        XSLFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
+        XDDFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
         assertEquals(1, pr2.getParagraph().getIndentLevel());
         assertEquals("Level 2", pr2.getRawText());
         assertEquals("Calibri", pr2.getFontFamily());
@@ -248,7 +249,7 @@ class TestXSLFTextShape {
         assertEquals("\u2013", pr2.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr2.getParagraph().getBulletFont());
 
-        XSLFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
+        XDDFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
         assertEquals(2, pr3.getParagraph().getIndentLevel());
         assertEquals("Level 3", pr3.getRawText());
         assertEquals("Calibri", pr3.getFontFamily());
@@ -257,7 +258,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr3.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr3.getParagraph().getBulletFont());
 
-        XSLFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
+        XDDFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
         assertEquals(3, pr4.getParagraph().getIndentLevel());
         assertEquals("Level 4", pr4.getRawText());
         assertEquals("Calibri", pr4.getFontFamily());
@@ -266,7 +267,7 @@ class TestXSLFTextShape {
         assertEquals("\u2013", pr4.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr4.getParagraph().getBulletFont());
 
-        XSLFTextRun pr5 = shape2.getTextParagraphs().get(4).getTextRuns().get(0);
+        XDDFTextRun pr5 = shape2.getTextParagraphs().get(4).getTextRuns().get(0);
         assertEquals(4, pr5.getParagraph().getIndentLevel());
         assertEquals("Level 5", pr5.getRawText());
         assertEquals("Calibri", pr5.getFontFamily());
@@ -307,7 +308,7 @@ class TestXSLFTextShape {
 
         // now check text properties
         assertEquals("Section Title", shape1.getText());
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.LEFT, r1.getParagraph().getTextAlign());
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(40.0, r1.getFontSize(), 0);
@@ -340,7 +341,7 @@ class TestXSLFTextShape {
         assertEquals(VerticalAlignment.BOTTOM, shape2.getVerticalAlignment());
 
         assertEquals("Section Header", shape2.getText());
-        XSLFTextRun r2 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r2 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.LEFT, r2.getParagraph().getTextAlign());
         assertEquals("Calibri", r2.getFontFamily());
         assertEquals(20.0, r2.getFontSize(), 0);
@@ -381,7 +382,7 @@ class TestXSLFTextShape {
 
         // now check text properties
         assertEquals("Title", shape1.getText());
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.CENTER, r1.getParagraph().getTextAlign());
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(44.0, r1.getFontSize(), 0);
@@ -412,7 +413,7 @@ class TestXSLFTextShape {
         assertEquals(3.6, shape2.getBottomInset(), 0); // 0.05"
         assertEquals(VerticalAlignment.TOP, shape2.getVerticalAlignment());
 
-        XSLFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(0, pr1.getParagraph().getIndentLevel());
         assertEquals("Left", pr1.getRawText());
         assertEquals("Calibri", pr1.getFontFamily());
@@ -421,7 +422,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr1.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr1.getParagraph().getBulletFont());
 
-        XSLFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
+        XDDFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
         assertEquals(1, pr2.getParagraph().getIndentLevel());
         assertEquals("Level 2", pr2.getParagraph().getText());
         assertEquals("Calibri", pr2.getFontFamily());
@@ -430,7 +431,7 @@ class TestXSLFTextShape {
         assertEquals("\u2013", pr2.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr2.getParagraph().getBulletFont());
 
-        XSLFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
+        XDDFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
         assertEquals(2, pr3.getParagraph().getIndentLevel());
         assertEquals("Level 3", pr3.getParagraph().getText());
         assertEquals("Calibri", pr3.getFontFamily());
@@ -439,7 +440,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr3.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr3.getParagraph().getBulletFont());
 
-        XSLFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
+        XDDFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
         assertEquals(3, pr4.getParagraph().getIndentLevel());
         assertEquals("Level 4", pr4.getParagraph().getText());
         assertEquals("Calibri", pr4.getFontFamily());
@@ -449,7 +450,7 @@ class TestXSLFTextShape {
         assertEquals("Arial", pr4.getParagraph().getBulletFont());
 
         XSLFTextShape shape3 = (XSLFTextShape)shapes.get(2);
-        XSLFTextRun pr5 = shape3.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun pr5 = shape3.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(0, pr5.getParagraph().getIndentLevel());
         assertEquals("Right", pr5.getRawText());
         assertEquals("Calibri", pr5.getFontFamily());
@@ -489,7 +490,7 @@ class TestXSLFTextShape {
 
         // now check text properties
         assertEquals("Blank with Default Title", shape1.getText());
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.CENTER, r1.getParagraph().getTextAlign());
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(44.0, r1.getFontSize(), 0);
@@ -511,7 +512,7 @@ class TestXSLFTextShape {
         assertEquals(3.6, shape2.getBottomInset(), 0); // 0.05"
         assertEquals(VerticalAlignment.TOP, shape2.getVerticalAlignment());
 
-        XSLFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(0, pr1.getParagraph().getIndentLevel());
         assertEquals("Default Text", pr1.getRawText());
         assertEquals("Calibri", pr1.getFontFamily());
@@ -562,7 +563,7 @@ class TestXSLFTextShape {
 
         // now check text properties
         assertEquals("Caption", shape1.getText());
-        XSLFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = shape1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.LEFT, r1.getParagraph().getTextAlign());
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(20.0, r1.getFontSize(), 0);
@@ -594,7 +595,7 @@ class TestXSLFTextShape {
         assertEquals(3.6, shape2.getBottomInset(), 0); // 0.05"
         assertEquals(VerticalAlignment.TOP, shape2.getVerticalAlignment());
 
-        XSLFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun pr1 = shape2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(0, pr1.getParagraph().getIndentLevel());
         assertEquals("Level 1", pr1.getRawText());
         assertEquals("Calibri", pr1.getFontFamily());
@@ -603,7 +604,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr1.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr1.getParagraph().getBulletFont());
 
-        XSLFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
+        XDDFTextRun pr2 = shape2.getTextParagraphs().get(1).getTextRuns().get(0);
         assertEquals(1, pr2.getParagraph().getIndentLevel());
         assertEquals("Level 2", pr2.getParagraph().getText());
         assertEquals("Calibri", pr2.getFontFamily());
@@ -612,7 +613,7 @@ class TestXSLFTextShape {
         assertEquals("\u2013", pr2.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr2.getParagraph().getBulletFont());
 
-        XSLFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
+        XDDFTextRun pr3 = shape2.getTextParagraphs().get(2).getTextRuns().get(0);
         assertEquals(2, pr3.getParagraph().getIndentLevel());
         assertEquals("Level 3", pr3.getParagraph().getText());
         assertEquals("Calibri", pr3.getFontFamily());
@@ -621,7 +622,7 @@ class TestXSLFTextShape {
         assertEquals("\u2022", pr3.getParagraph().getBulletCharacter());
         assertEquals("Arial", pr3.getParagraph().getBulletFont());
 
-        XSLFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
+        XDDFTextRun pr4 = shape2.getTextParagraphs().get(3).getTextRuns().get(0);
         assertEquals(3, pr4.getParagraph().getIndentLevel());
         assertEquals("Level 4", pr4.getParagraph().getText());
         assertEquals("Calibri", pr4.getFontFamily());
@@ -649,7 +650,7 @@ class TestXSLFTextShape {
         assertEquals("Apache Software Foundation", footer.getText());
         assertEquals(VerticalAlignment.MIDDLE, footer.getVerticalAlignment());
 
-        XSLFTextRun r1 = footer.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r1 = footer.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(TextAlign.CENTER, r1.getParagraph().getTextAlign());
         assertEquals("Calibri", r1.getFontFamily());
         assertEquals(12.0, r1.getFontSize(), 0);
@@ -676,7 +677,7 @@ class TestXSLFTextShape {
         XSLFTextShape titleShape = slide.getPlaceholder(0);
         titleShape.setText("Apache POI");
         XSLFTextParagraph paragraph = titleShape.getTextParagraphs().get(0);
-        XSLFTextRun textRun = paragraph.getTextRuns().get(0);
+        XDDFTextRun textRun = paragraph.getTextRuns().get(0);
 
         // level 1 : default title style on the master slide
         // /p:sldMaster/p:txStyles/p:titleStyle/a:lvl1pPr

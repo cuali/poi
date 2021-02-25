@@ -37,7 +37,9 @@ import org.apache.poi.xddf.usermodel.XDDFColor;
 import org.apache.poi.xddf.usermodel.XDDFFillProperties;
 import org.apache.poi.xddf.usermodel.XDDFLineProperties;
 import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
+import org.apache.poi.xddf.usermodel.text.CapitalsType;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTRegularTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextField;
@@ -48,28 +50,52 @@ import org.openxmlformats.schemas.drawingml.x2006.main.STTextUnderlineType;
 
 @Beta
 public class XDDFTextRun {
-    private XDDFTextParagraph _parent;
+    protected final XDDFTextParagraph _parent;
     private XDDFRunProperties _properties;
-    private CTTextLineBreak _tlb;
-    private CTTextField _tf;
-    private CTRegularTextRun _rtr;
+    private final CTTextLineBreak _tlb;
+    private final CTTextField _tf;
+    private final CTRegularTextRun _rtr;
 
     @Internal
     protected XDDFTextRun(CTTextLineBreak run, XDDFTextParagraph parent) {
         this._tlb = run;
+        this._tf = null;
+        this._rtr = null;
         this._parent = parent;
     }
 
     @Internal
     protected XDDFTextRun(CTTextField run, XDDFTextParagraph parent) {
+        this._tlb = null;
         this._tf = run;
+        this._rtr = null;
         this._parent = parent;
     }
 
     @Internal
     protected XDDFTextRun(CTRegularTextRun run, XDDFTextParagraph parent) {
+        this._tlb = null;
+        this._tf = null;
         this._rtr = run;
         this._parent = parent;
+    }
+
+    /**
+     * Return the text run xmlbeans object.
+     * Depending on the type of text run, this can be {@link CTTextField},
+     * {@link CTTextLineBreak} or usually a {@link CTRegularTextRun}
+     *
+     * @return the xmlbeans object
+     */
+    @Internal
+    public XmlObject getXmlObject(){
+        if (isLineBreak()) {
+            return _tlb;
+        } else if (isField()) {
+            return _tf;
+        } else {
+            return _rtr;
+        }
     }
 
     public XDDFTextParagraph getParentParagraph() {
@@ -103,6 +129,8 @@ public class XDDFTextRun {
             _tf.setT(text);
         } else if (isRegularRun()) {
             _rtr.setT(text);
+        } else {
+            throw new IllegalStateException("You cannot change text of a line break, it is always '\\n'");
         }
     }
 
@@ -240,7 +268,7 @@ public class XDDFTextRun {
     /**
      * @return whether this run of text is formatted as underlined text.
      */
-    public boolean isUnderline() {
+    public boolean isUnderlined() {
         return findDefinedProperty(
                 CTTextCharacterProperties::isSetU,
                 CTTextCharacterProperties::getU)
@@ -263,7 +291,7 @@ public class XDDFTextRun {
      * @param caps
      *            which caps style this run of text is formatted with.
      */
-    public void setCapitals(CapsType caps) {
+    public void setCapitals(CapitalsType caps) {
         getOrCreateProperties().setCapitals(caps);
     }
 
@@ -281,11 +309,11 @@ public class XDDFTextRun {
     /**
      * @return which caps style this run of text is formatted with.
      */
-    public CapsType getCapitals() {
+    public CapitalsType getCapitals() {
         return findDefinedProperty(
                 CTTextCharacterProperties::isSetCap,
                 CTTextCharacterProperties::getCap)
-            .map(CapsType::valueOf)
+            .map(CapitalsType::valueOf)
             .orElse(null);
     }
 
@@ -321,11 +349,14 @@ public class XDDFTextRun {
      *     The size is specified using a percentage.
      *     Positive values indicate superscript, negative values indicate subscript.
      *  </p>
+     *  <p>
+     *      The values <code>null</code> or <code>0.0</code> unset the baseline offset for this run.
+     *  </p>
      *
      * @param offset
      */
     public void setBaseline(Double offset) {
-        if (offset == null) {
+        if (offset == null || offset == 0.0) {
             getOrCreateProperties().setBaseline(null);
         } else {
             getOrCreateProperties().setBaseline((int) (offset * 1000));
@@ -360,13 +391,13 @@ public class XDDFTextRun {
         getOrCreateProperties().setFillProperties(properties);
     }
 
-    public void setFontColor(XDDFColor color) {
+    public void setSolidFontColor(XDDFColor color) {
         XDDFSolidFillProperties props = new XDDFSolidFillProperties();
         props.setColor(color);
         setFillProperties(props);
     }
 
-    public XDDFColor getFontColor() {
+    public XDDFColor getSolidFontColor() {
         XDDFSolidFillProperties solid = findDefinedProperty(
                 CTTextCharacterProperties::isSetSolidFill,
                 CTTextCharacterProperties::getSolidFill)
@@ -407,7 +438,7 @@ public class XDDFTextRun {
 
     /**
      * @param size
-     *            font size in points. The value <code>null</code> unsets the
+     *            font size in points. The values <code>null</code> or <code>-1</code> unset the
      *            size for this run.
      *            <dl>
      *            <dt>Minimum inclusive =</dt>
@@ -417,15 +448,22 @@ public class XDDFTextRun {
      *            </dl>
      */
     public void setFontSize(Double size) {
-        getOrCreateProperties().setFontSize(size);
+        getOrCreateProperties().setFontSize((size != null && size == -1.0) ? null : size);
     }
 
+
+    /**
+     * @return font size in points or XSSFFont.DEFAULT_FONT_SIZE if font size is not set.
+     */
     public Double getFontSize() {
         Integer size = findDefinedProperty(
                 CTTextCharacterProperties::isSetSz,
                 CTTextCharacterProperties::getSz)
             .orElse(100 * XSSFFont.DEFAULT_FONT_SIZE); // default font size
-        double scale = _parent.getParentBody().getBodyProperties().getAutoFit().getFontScale() / 10_000_000.0;
+        double scale = 1.0 / 100;
+        if (_parent.getParentBody().getBodyProperties() != null) {
+            scale = _parent.getParentBody().getBodyProperties().getAutoFit().getFontScale() / 10_000_000.0;
+        }
         return size * scale;
     }
 
@@ -468,7 +506,7 @@ public class XDDFTextRun {
      * negative values to condense.
      * </p>
      * <p>
-     * The value <code>null</code> unsets the spacing for this run.
+     * The values <code>null</code> or <code>0.0</code> unset the spacing for this run.
      * </p>
      *
      * @param spacing
@@ -487,7 +525,7 @@ public class XDDFTextRun {
     /**
      *
      * @return the spacing between characters within a text run,
-     * If this attribute is omitted then returns <code>null</code>.
+     * If this attribute is omitted then a value of 0 or no adjustment is assumed.
      */
     public Double getCharacterSpacing() {
         return findDefinedProperty(
@@ -529,7 +567,7 @@ public class XDDFTextRun {
         return link;
     }
 
-    public XDDFHyperlink getHyperlink() {
+    public XDDFHyperlink getLink() {
         return findDefinedProperty(
                 CTTextCharacterProperties::isSetHlinkClick,
                 CTTextCharacterProperties::getHlinkClick)
@@ -621,15 +659,22 @@ public class XDDFTextRun {
         return (defaultProperties == null) ? null : defaultProperties.getXmlObject();
     }
 
+    @Internal
+    protected CTTextCharacterProperties getOrCreateProps() {
+        if (isLineBreak()) {
+            return _tlb.isSetRPr() ? _tlb.getRPr() : _tlb.addNewRPr();
+        } else if (isField()) {
+            return _tf.isSetRPr() ? _tf.getRPr() : _tf.addNewRPr();
+        } else if (isRegularRun()) {
+            return _rtr.isSetRPr() ? _rtr.getRPr() : _rtr.addNewRPr();
+        } else {
+            return null;
+        }
+    }
+
     private XDDFRunProperties getOrCreateProperties() {
         if (_properties == null) {
-            if (isLineBreak()) {
-                _properties = new XDDFRunProperties(_tlb.isSetRPr() ? _tlb.getRPr() : _tlb.addNewRPr());
-            } else if (isField()) {
-                _properties = new XDDFRunProperties(_tf.isSetRPr() ? _tf.getRPr() : _tf.addNewRPr());
-            } else if (isRegularRun()) {
-                _properties = new XDDFRunProperties(_rtr.isSetRPr() ? _rtr.getRPr() : _rtr.addNewRPr());
-            }
+            _properties = new XDDFRunProperties(getOrCreateProps());
         }
         return _properties;
     }

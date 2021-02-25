@@ -35,11 +35,15 @@ import org.apache.poi.sl.usermodel.PaintStyle.SolidPaint;
 import org.apache.poi.sl.usermodel.TextRun;
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.Internal;
+import org.apache.poi.util.Removal;
 import org.apache.poi.util.Units;
+import org.apache.poi.xddf.usermodel.text.CapitalsType;
+import org.apache.poi.xddf.usermodel.text.StrikeType;
+import org.apache.poi.xddf.usermodel.text.UnderlineType;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.model.CharacterPropertyFetcher;
 import org.apache.poi.xslf.model.CharacterPropertyFetcher.CharPropFetcher;
 import org.apache.poi.xslf.usermodel.XSLFPropertiesDelegate.XSLFFillProperties;
-import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTFontCollection;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTFontScheme;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTHyperlink;
@@ -47,63 +51,34 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTRegularTextRun;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSchemeColor;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTShapeStyle;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTSolidColorFillProperties;
-import org.openxmlformats.schemas.drawingml.x2006.main.CTTextBodyProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextField;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextFont;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextLineBreak;
-import org.openxmlformats.schemas.drawingml.x2006.main.CTTextNormalAutofit;
-import org.openxmlformats.schemas.drawingml.x2006.main.STTextStrikeType;
-import org.openxmlformats.schemas.drawingml.x2006.main.STTextUnderlineType;
 
 /**
  * Represents a run of text within the containing text body. The run element is the
  * lowest level text separation mechanism within a text body.
  */
 @Beta
-public class XSLFTextRun implements TextRun {
+public class XSLFTextRun extends XDDFTextRun implements TextRun {
     private static final Logger LOG = LogManager.getLogger(XSLFTextRun.class);
 
-    private final XmlObject _r;
-    private final XSLFTextParagraph _p;
+    protected XSLFTextRun(CTTextLineBreak run, XSLFTextParagraph parent) {
+        super(run, parent);
+    }
 
-    protected XSLFTextRun(XmlObject r, XSLFTextParagraph p){
-        _r = r;
-        _p = p;
-        if (!(r instanceof CTRegularTextRun || r instanceof CTTextLineBreak || r instanceof CTTextField)) {
-            throw new OpenXML4JRuntimeException("unsupported text run of type "+r.getClass());
-        }
+    protected XSLFTextRun(CTTextField run, XSLFTextParagraph parent) {
+        super(run, parent);
+    }
+
+    protected XSLFTextRun(CTRegularTextRun run, XSLFTextParagraph parent) {
+        super(run, parent);
     }
 
     @Override
     public String getRawText(){
-        if (_r instanceof CTTextField) {
-            return ((CTTextField)_r).getT();
-        } else if (_r instanceof CTTextLineBreak) {
-            return "\n";
-        }
-        return ((CTRegularTextRun)_r).getT();
-    }
-
-    @Override
-    public void setText(String text){
-        if (_r instanceof CTTextField) {
-            ((CTTextField)_r).setT(text);
-        } else if (!(_r instanceof CTTextLineBreak)) {
-            ((CTRegularTextRun)_r).setT(text);
-        }
-    }
-
-    /**
-     * Return the text run xmlbeans object.
-     * Depending on the type of text run, this can be {@link CTTextField},
-     * {@link CTTextLineBreak} or usually a {@link CTRegularTextRun}
-     *
-     * @return the xmlbeans object
-     */
-    @Internal
-    public XmlObject getXmlObject(){
-        return _r;
+        return super.getText();
     }
 
     @Override
@@ -157,81 +132,6 @@ public class XSLFTextRun implements TextRun {
         }
     }
 
-
-
-    @Override
-    public void setFontSize(Double fontSize){
-        CTTextCharacterProperties rPr = getRPr(true);
-        if(fontSize == null) {
-            if (rPr.isSetSz()) {
-                rPr.unsetSz();
-            }
-        } else {
-            if (fontSize < 1.0) {
-                throw new IllegalArgumentException("Minimum font size is 1pt but was " + fontSize);
-            }
-
-            rPr.setSz((int)(100*fontSize));
-        }
-    }
-
-    @Override
-    public Double getFontSize(){
-        double scale = 1;
-        final XSLFTextShape ps = getParagraph().getParentShape();
-        if (ps != null) {
-            final CTTextBodyProperties tbp = ps.getTextBodyPr();
-            if (tbp != null) {
-                CTTextNormalAutofit afit = tbp.getNormAutofit();
-                if (afit != null && afit.isSetFontScale()) {
-                    scale = POIXMLUnits.parsePercent(afit.xgetFontScale()) / 100000.;
-                }
-            }
-        }
-
-        Double d = fetchCharacterProperty((props, val) -> {
-            if (props.isSetSz()) {
-                val.accept(props.getSz()*0.01);
-            }
-        });
-        return d == null ? null : d*scale;
-    }
-
-    /**
-     * @return the spacing between characters within a text run,
-     * If this attribute is omitted than a value of 0 or no adjustment is assumed.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public double getCharacterSpacing(){
-        Double d = fetchCharacterProperty((props, val) -> {
-            if (props.isSetSpc()) {
-                val.accept(Units.toPoints(POIXMLUnits.parseLength(props.xgetSpc())));
-            }
-        });
-        return d == null ? 0 : d;
-    }
-
-    /**
-     * Set the spacing between characters within a text run.
-     * <p>
-     * The spacing is specified in points. Positive values will cause the text to expand,
-     * negative values to condense.
-     * </p>
-     *
-     * @param spc  character spacing in points.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public void setCharacterSpacing(double spc){
-        CTTextCharacterProperties rPr = getRPr(true);
-        if(spc == 0.0) {
-            if(rPr.isSetSpc()) {
-                rPr.unsetSpc();
-            }
-        } else {
-            rPr.setSpc((int)(100*spc));
-        }
-    }
-
     @Override
     public void setFontFamily(String typeface) {
         FontGroup fg = FontGroup.getFontGroupFirst(getRawText());
@@ -280,132 +180,69 @@ public class XSLFTextRun implements TextRun {
         return FontPitch.getNativeId(pitch, family);
     }
 
-    @Override
-    public void setStrikethrough(boolean strike) {
-        getRPr(true).setStrike(strike ? STTextStrikeType.SNG_STRIKE : STTextStrikeType.NO_STRIKE);
-    }
-
-    @Override
-    public boolean isStrikethrough() {
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetStrike()) {
-                val.accept(props.getStrike() != STTextStrikeType.NO_STRIKE);
-            }
-        });
-        return b != null && b;
-    }
-
-    @Override
-    public boolean isSuperscript() {
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetBaseline()) {
-                val.accept(POIXMLUnits.parsePercent(props.xgetBaseline()) > 0);
-            }
-        });
-        return b != null && b;
-    }
-
     /**
-     *  Set the baseline for both the superscript and subscript fonts.
-     *  <p>
-     *     The size is specified using a percentage.
-     *     Positive values indicate superscript, negative values indicate subscript.
-     *  </p>
+     * @deprecated use {@link #setStrikeThrough(StrikeType)} instead in order to use {@link StrikeType#DOUBLE_STRIKE}
+     * @param strike whether the text run has a single strike or no strike.
      */
-    @SuppressWarnings("WeakerAccess")
-    public void setBaselineOffset(double baselineOffset){
-       getRPr(true).setBaseline((int) baselineOffset * 1000);
+    @Override
+    @Deprecated
+    @Removal(version = "6.0.0")
+    public void setStrikeThrough(boolean strike) {
+        super.setStrikeThrough(strike ? StrikeType.SINGLE_STRIKE : StrikeType.NO_STRIKE);
     }
 
     /**
      * Set whether the text in this run is formatted as superscript.
      * Default base line offset is 30%
      *
-     * @see #setBaselineOffset(double)
+     * @see #setBaseline(Double)
      */
     @SuppressWarnings("WeakerAccess")
     public void setSuperscript(boolean flag){
-        setBaselineOffset(flag ? 30. : 0.);
+        setBaseline(flag ? 30. : 0.);
     }
 
     /**
      * Set whether the text in this run is formatted as subscript.
      * Default base line offset is -25%.
      *
-     * @see #setBaselineOffset(double)
+     * @see #setBaseline(Double)
      */
     @SuppressWarnings("WeakerAccess")
     public void setSubscript(boolean flag){
-        setBaselineOffset(flag ? -25.0 : 0.);
-    }
-
-    @Override
-    public boolean isSubscript() {
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetBaseline()) {
-                val.accept(POIXMLUnits.parsePercent(props.xgetBaseline()) < 0);
-            }
-        });
-        return b != null && b;
+        setBaseline(flag ? -25.0 : 0.);
     }
 
     /**
-     * @return whether a run of text will be formatted as a superscript text. Default is false.
+     * @return whether a run of text will be formatted as capitals text.
      */
     @Override
-    public TextCap getTextCap() {
-        TextCap textCap = fetchCharacterProperty((props, val) -> {
-            if (props.isSetCap()) {
-                val.accept(TextCap.values()[props.getCap().intValue() - 1]);
-            }
-        });
-        return textCap == null ? TextCap.NONE : textCap;
+    public TextCapitals getTextCapitals() {
+        switch (getCapitals()) {
+            case ALL: return TextCapitals.ALL;
+            case SMALL: return TextCapitals.SMALL;
+            default: return TextCapitals.NONE;
+        }
     }
 
     @Override
     public void setBold(boolean bold){
-        getRPr(true).setB(bold);
+        super.setBold(bold);
     }
-
-    @Override
-    public boolean isBold() {
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetB()) {
-                val.accept(props.getB());
-            }
-        });
-        return b != null && b;
-    }
-
 
     @Override
     public void setItalic(boolean italic){
-        getRPr(true).setI(italic);
+        super.setItalic(italic);
     }
 
-    @Override
-    public boolean isItalic() {
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetI()) {
-                val.accept(props.getI());
-            }
-        });
-        return b != null && b;
-    }
-
+    /**
+     * @deprecated use {@link #setUnderline(UnderlineType)} instead
+     */
+    @Deprecated
+    @Removal(version = "6.0.0")
     @Override
     public void setUnderlined(boolean underline) {
-        getRPr(true).setU(underline ? STTextUnderlineType.SNG : STTextUnderlineType.NONE);
-    }
-
-    @Override
-    public boolean isUnderlined(){
-        Boolean b = fetchCharacterProperty((props, val) -> {
-            if (props.isSetU()) {
-                val.accept(props.getU() != STTextUnderlineType.NONE);
-            }
-        });
-        return b != null && b;
+        super.setUnderline(underline ? UnderlineType.SINGLE : UnderlineType.NONE);
     }
 
     /**
@@ -415,33 +252,12 @@ public class XSLFTextRun implements TextRun {
      * @return the character properties or null if create was false and the properties haven't exist
      */
     @Internal
-    public CTTextCharacterProperties getRPr(boolean create) {
-        if (_r instanceof CTTextField) {
-            CTTextField tf = (CTTextField)_r;
-            if (tf.isSetRPr()) {
-                return tf.getRPr();
-            } else if (create) {
-                return tf.addNewRPr();
-            }
-        } else if (_r instanceof CTTextLineBreak) {
-            CTTextLineBreak tlb = (CTTextLineBreak)_r;
-            if (tlb.isSetRPr()) {
-                return tlb.getRPr();
-            } else if (create) {
-                return tlb.addNewRPr();
-            }
+    CTTextCharacterProperties getRPr(boolean create) {
+        if (create) {
+            return getOrCreateProps();
         } else {
-            CTRegularTextRun tr = (CTRegularTextRun)_r;
-            if (tr.isSetRPr()) {
-                return tr.getRPr();
-            } else if (create) {
-                return tr.addNewRPr();
-            }
+            return getProperties();
         }
-        if (_p.getXmlObject().isSetPPr() && _p.getXmlObject().getPPr().isSetDefRPr()) {
-            return _p.getXmlObject().getPPr().getDefRPr();
-        }
-        return null;
     }
 
     @Override
@@ -457,7 +273,7 @@ public class XSLFTextRun implements TextRun {
         }
 
         CTTextCharacterProperties rPr = getRPr(true);
-        return new XSLFHyperlink(rPr.addNewHlinkClick(), _p.getParentShape().getSheet());
+        return new XSLFHyperlink(rPr.addNewHlinkClick(), getParagraph().getParentShape().getSheet());
     }
 
     @Override
@@ -470,11 +286,11 @@ public class XSLFTextRun implements TextRun {
         if (hl == null) {
             return null;
         }
-        return new XSLFHyperlink(hl, _p.getParentShape().getSheet());
+        return new XSLFHyperlink(hl, getParagraph().getParentShape().getSheet());
     }
 
     private <T> T fetchCharacterProperty(CharPropFetcher<T> fetcher){
-        final XSLFTextShape shape = _p.getParentShape();
+        final XSLFTextShape shape = getParagraph().getParentShape();
         return new CharacterPropertyFetcher<>(this, fetcher).fetchProperty(shape);
     }
 
@@ -508,14 +324,19 @@ public class XSLFTextRun implements TextRun {
             setItalic(italic);
         }
 
-        boolean underline = r.isUnderlined();
-        if(underline != isUnderlined()) {
-            setUnderlined(underline);
+        UnderlineType underline = r.getUnderline();
+        if (!underline.equals(getUnderline())) {
+            setUnderline(underline);
         }
 
-        boolean strike = r.isStrikethrough();
-        if(strike != isStrikethrough()) {
-            setStrikethrough(strike);
+        StrikeType strike = r.getStrikeThrough();
+        if (!strike.equals(getStrikeThrough())) {
+            setStrikeThrough(strike);
+        }
+
+        CapitalsType capitals = r.getCapitals();
+        if (!capitals.equals(getCapitals())) {
+            setCapitals(capitals);
         }
 
         XSLFHyperlink hyperSrc = r.getHyperlink();
@@ -528,8 +349,8 @@ public class XSLFTextRun implements TextRun {
 
     @Override
     public FieldType getFieldType() {
-        if (_r instanceof CTTextField) {
-            CTTextField tf = (CTTextField)_r;
+        if (isField()) {
+            CTTextField tf = (CTTextField) getXmlObject();
             if ("slidenum".equals(tf.getType())) {
                 return FieldType.SLIDE_NUMBER;
             }
@@ -725,8 +546,7 @@ public class XSLFTextRun implements TextRun {
                 typeface = "";
             }
             if (typeface.startsWith("+mj-") || typeface.startsWith("+mn-")) {
-                //  "+mj-lt".equals(typeface) || "+mn-lt".equals(typeface)
-                final XSLFTheme theme = _p.getParentShape().getSheet().getTheme();
+                final XSLFTheme theme = getParagraph().getParentShape().getSheet().getTheme();
                 CTFontScheme fontTheme = theme.getXmlObject().getThemeElements().getFontScheme();
                 CTFontCollection coll = typeface.startsWith("+mj-")
                     ? fontTheme.getMajorFont() : fontTheme.getMinorFont();
@@ -745,7 +565,6 @@ public class XSLFTextRun implements TextRun {
                 if (font == null || font.getTypeface() == null || "".equals(font.getTypeface())) {
                     // don't fallback to latin but bubble up in the style hierarchy (slide -> layout -> master -> theme)
                     return null;
-//                    font = coll.getLatin();
                 }
             }
 
@@ -755,6 +574,6 @@ public class XSLFTextRun implements TextRun {
 
     @Override
     public XSLFTextParagraph getParagraph() {
-        return _p;
+        return (XSLFTextParagraph)_parent;
     }
 }

@@ -147,7 +147,7 @@ public class XDDFRunProperties {
             throw new IllegalArgumentException("Minimum inclusive = -4000. Maximum inclusive = 4000.");
         }
 
-        update(props::isSetSpc, props::unsetSpc, props::setSpc, spacing == null ? null : (int)(100 * spacing));
+        update(props::isSetSpc, props::unsetSpc, props::setSpc, (spacing == null || spacing == 0.0) ? null : (int)(100 * spacing));
     }
 
     public void setFonts(XDDFFont[] fonts) {
@@ -178,7 +178,7 @@ public class XDDFRunProperties {
         update(props::isSetStrike, props::unsetStrike, props::setStrike, strike == null ? null : strike.underlying);
     }
 
-    public void setCapitals(CapsType caps) {
+    public void setCapitals(CapitalsType caps) {
         update(props::isSetCap, props::unsetCap, props::setCap, caps == null ? null : caps.underlying);
     }
 

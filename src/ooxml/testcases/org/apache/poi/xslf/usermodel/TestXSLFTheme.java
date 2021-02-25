@@ -29,6 +29,7 @@ import org.apache.poi.sl.usermodel.PaintStyle;
 import org.apache.poi.sl.usermodel.PaintStyle.GradientPaint;
 import org.apache.poi.sl.usermodel.PaintStyle.SolidPaint;
 import org.apache.poi.sl.usermodel.PaintStyle.TexturePaint;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.XSLFTestDataSamples;
 import org.junit.jupiter.api.Test;
 
@@ -71,7 +72,7 @@ class TestXSLFTheme {
         assertEquals("Office Theme", theme.getName());
 
         XSLFTextShape sh1 = (XSLFTextShape)getShape(slide, "Rectangle 3");
-        XSLFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(Color.white, getColor(run1.getFontColor()));
         assertEquals(new Color(79, 129, 189), sh1.getFillColor());
         assertTrue(sh1.getFillStyle().getPaint() instanceof SolidPaint) ;   // solid fill
@@ -94,13 +95,13 @@ class TestXSLFTheme {
         assertTrue(fs instanceof GradientPaint);
 
         XSLFTextShape sh1 = (XSLFTextShape)getShape(slide, "Rectangle 4");
-        XSLFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(Color.white, getColor(run1.getFontColor()));
         assertEquals(new Color(148, 198, 0), sh1.getFillColor());
         assertTrue(sh1.getFillStyle().getPaint() instanceof SolidPaint) ;   // solid fill
 
         XSLFTextShape sh2 = (XSLFTextShape)getShape(slide, "Title 3");
-        XSLFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(new Color(148, 198, 0), getColor(run2.getFontColor()));
         assertNull(sh2.getFillColor());  // no fill
 
@@ -112,7 +113,7 @@ class TestXSLFTheme {
         assertTrue(fs instanceof TexturePaint);
 
         XSLFTextShape sh2 = (XSLFTextShape)getShape(slide, "Title 1");
-        XSLFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(new Color(148, 198, 0), getColor(run2.getFontColor()));
         assertNull(sh2.getFillColor());  // no fill
         // font size is 40pt and scale factor is 90%
@@ -124,12 +125,12 @@ class TestXSLFTheme {
     void slide6(XSLFSlide slide){
 
         XSLFTextShape sh1 = (XSLFTextShape)getShape(slide, "Subtitle 3");
-        XSLFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(new Color(66, 66, 66), getColor(run1.getFontColor()));
         assertNull(sh1.getFillColor());  // no fill
 
         XSLFTextShape sh2 = (XSLFTextShape)getShape(slide, "Title 2");
-        XSLFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(new Color(148, 198, 0), getColor(run2.getFontColor()));
         assertNull(sh2.getFillColor());  // no fill
 
@@ -159,12 +160,12 @@ class TestXSLFTheme {
         assertTrue(fs instanceof GradientPaint);
 
         XSLFTextShape sh1 = (XSLFTextShape)getShape(slide, "Title 3");
-        XSLFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run1 = sh1.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(Color.white, getColor(run1.getFontColor()));
         assertNull(sh1.getFillColor());  // no fill
 
         XSLFTextShape sh2 = (XSLFTextShape)getShape(slide, "Subtitle 4");
-        XSLFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun run2 = sh2.getTextParagraphs().get(0).getTextRuns().get(0);
         assertEquals(Color.white, getColor(run2.getFontColor()));
         assertNull(sh2.getFillColor());  // no fill
     }

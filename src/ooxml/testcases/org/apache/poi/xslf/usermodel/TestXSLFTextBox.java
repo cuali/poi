@@ -22,7 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.IOException;
 
 import org.apache.poi.sl.usermodel.Placeholder;
+<<<<<<< HEAD
 import org.junit.jupiter.api.Test;
+=======
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
+import org.junit.Test;
+>>>>>>> a0aae58...  Let XSLFText* and XSSFText* extend from XDDFText*
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 
 /**
@@ -62,7 +67,7 @@ class TestXSLFTextBox {
         assertEquals(1, shape.getTextParagraphs().size());
         assertEquals(1, shape.getTextParagraphs().get(0).getTextRuns().size());
 
-        XSLFTextRun r = shape.getTextParagraphs().get(0).getTextRuns().get(0);
+        XDDFTextRun r = shape.getTextParagraphs().get(0).getTextRuns().get(0);
 
         assertEquals(1800, pPr.getSz());
         assertEquals(18.0, r.getFontSize(), 0);

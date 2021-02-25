@@ -111,9 +111,9 @@ class TestXDDFTextRun {
             assertFalse(run.isStrikeThrough());
 
             assertFalse(run.isCapitals());
-            run.setCapitals(CapsType.SMALL);
+            run.setCapitals(CapitalsType.SMALL);
             assertTrue(run.isCapitals());
-            run.setCapitals(CapsType.NONE);
+            run.setCapitals(CapitalsType.NONE);
             assertFalse(run.isCapitals());
 
             assertFalse(run.isBold());

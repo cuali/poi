@@ -718,7 +718,15 @@ public class XSLFTableCell extends XSLFTextShape implements TableCell<XSLFShape,
         }
 
         @Override
-        protected XSLFCellTextRun newTextRun(XmlObject r) {
+        protected XSLFCellTextRun newTextRun(CTRegularTextRun r) {
+            return new XSLFCellTextRun(r, this);
+        }
+        @Override
+        protected XSLFCellTextRun newTextRun(CTTextField r) {
+            return new XSLFCellTextRun(r, this);
+        }
+        @Override
+        protected XSLFCellTextRun newTextRun(CTTextLineBreak r) {
             return new XSLFCellTextRun(r, this);
         }
     }
@@ -727,7 +735,13 @@ public class XSLFTableCell extends XSLFTextShape implements TableCell<XSLFShape,
      * @since POI 3.15-beta2
      */
     private final class XSLFCellTextRun extends XSLFTextRun {
-        private XSLFCellTextRun(XmlObject r, XSLFTextParagraph p) {
+        private XSLFCellTextRun(CTRegularTextRun r, XSLFTextParagraph p) {
+            super(r, p);
+        }
+        private XSLFCellTextRun(CTTextField r, XSLFTextParagraph p) {
+            super(r, p);
+        }
+        private XSLFCellTextRun(CTTextLineBreak r, XSLFTextParagraph p) {
             super(r, p);
         }
 

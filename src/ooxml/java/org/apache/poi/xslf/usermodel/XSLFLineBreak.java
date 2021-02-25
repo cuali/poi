@@ -26,6 +26,7 @@ class XSLFLineBreak extends XSLFTextRun {
         super(r, p);
     }
 
+    @Override
     public void setText(String text){
         throw new IllegalStateException("You cannot change text of a line break, it is always '\\n'");
     }

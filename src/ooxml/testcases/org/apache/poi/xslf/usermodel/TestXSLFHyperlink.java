@@ -27,6 +27,7 @@ import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.TargetMode;
+import org.apache.poi.xddf.usermodel.text.XDDFTextRun;
 import org.apache.poi.xslf.XSLFTestDataSamples;
 import org.junit.jupiter.api.Test;
 
@@ -125,7 +126,7 @@ class TestXSLFHyperlink {
         tb3.setText("text1 ");
         tb3.appendText("lin\u000bk", false);
         tb3.appendText(" text2", false);
-        List<XSLFTextRun> tb3runs = tb3.getTextParagraphs().get(0).getTextRuns();
+        List<XDDFTextRun> tb3runs = tb3.getTextParagraphs().get(0).getTextRuns();
         tb3runs.get(1).createHyperlink().linkToSlide(slide1); // "lin"
         tb3runs.get(3).createHyperlink().linkToSlide(slide1); // "k"
         XSLFTextBox tb4 = ppt1.createSlide().createTextBox();
